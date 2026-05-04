@@ -1,0 +1,190 @@
+{
+
+    "year": "2024",
+    "file_mode": "local",
+    "xrootddomain": "xrootd-cms.infn.it",
+    "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
+    "datadir": "configs/data_UL/2024",
+    "store": "",
+    "rng_seed_file": "$CONFDIR/seed.txt",
+    "compute_systematics": false,
+    "luminosity": 124.0, // fb-1
+    "crosssections": "$CONFDIR/../crosssections.json",
+    "apply_met_filters": true,
+    "dxy_cut_study": false,
+    "stau_properties_study": false,
+    "mc_lumifactors": "$CONFDIR/lumifactors_stau2018.json",
+    "exp_datasets": {
+        "DATA_MET": [
+            "$STOREDIR/MET/crab_MET_2018A_UL/230415_105803/*/*.root",
+            "$STOREDIR/MET/crab_MET_2018B_UL/230415_105809/*/*.root",
+            "$STOREDIR/MET/crab_MET_2018C_UL/230415_105814/*/*.root",
+            "$STOREDIR/MET/crab_MET_2018D_UL/230414_182515/*/*.root"
+        ]
+    },
+    "data_eras": {
+        "2024C": [379412, 380252],
+        "2024D": [380253,  380947],
+        "2024E-v1": [380948, 381383 ],
+        "2024E-v2": [381384, 381943 ],
+        "2024F": [381944,383779],
+        "2024G": [383780 , 385813 ],
+        "2024H": [385814, 386408],
+        "2024I-v1": [386409,  386797],
+        "2024I-v2": [ 386798,  387121]
+    },
+    
+    "pdf_types": {
+        "91400": "Hessian",
+        "306000": "Hessian",
+        "325300": "Hessian",
+        "325500": "Hessian",
+        "320900" : "MC_Gaussian"
+    },
+    "mc_datasets": {
+        ""
+    },
+    "pileup_reweighting": "$DATADIR/pileup.root",
+    "DY_ZptLO_weights": [
+        "$DATADIR/zptmass_weights_UL2018.root",
+        "zptmass_weight",
+        ["pt", "mass"]
+    ],
+    "MET_trigger_sfs": [
+        "/nfs/dust/cms/user/sobhatta/work/LongLivedStaus/LLStaus_Run2/Analysis/output/trigger_sf_study/2018/trigger-eff-sfs_MET.root",
+        "h1_sf",
+        ["pt"]
+    ],
+    "MET_trigger_plateau" : 250, // for 120-250 GeV - 2x stat. unc. of the MET_trigger_sfs is used, for > 250 - 1x stat. unc.
+    "DY_jet_reweight": [
+        // Njets: [0, 1, 2, 3, 4]
+        [  
+            0.0812335727642246,
+            0.0176155683054349,
+            0.0136231900177429,
+            0.0072127496418802,
+            0.00786746026143814
+        ]
+    ],
+    "W_jet_reweight": [
+        // Njets: [0, 1, 2, 3, 4]
+        [
+            0.747227241113348,
+            0.187506782185615,
+            0.122313368332312,
+            0.0700485945835121,
+            0.0612378446670939
+        ]
+    ],
+    "dataset_for_systematics": {
+    },
+    "dataset_trigger_order": [
+        "DATA_MET"
+    ],
+    "dataset_trigger_map": {
+        "DATA_MET": [
+            "HLT_PFMET120_PFMHT120_IDTight",
+            "HLT_PFMET130_PFMHT130_IDTight",
+            "HLT_PFMET140_PFMHT140_IDTight"
+        ]
+    },
+
+    // data-driven n-pass yield prediction:
+    "jet_fake_rate" : [
+        "/afs/desy.de/user/m/mykytaua/nfscms/softLLSTAU/LLStaus_Run2/Analysis/output_iteration_6/2018/output_wjet/wjet_v4_fake_rate_dxy0p2/fake_rate/fake_rate_jet_dxy_pt.root",
+        "fake_rate_jet_dxy_pt",
+        ["jet_pt", "jet_dxy"]
+    ],
+    "predict_yield" : false,
+
+    "propagate_eff_factors" : true,
+    "signal_eff_factors": { // signal efficiency factors are set to 15% per tight jet
+        "central": 1.0,
+        "up": 1.15,
+        "down": 0.85
+    },
+
+    "skim_path" : "/afs/desy.de/user/m/mykytaua/nfscms/softLLSTAU/LLStaus_Run2/Analysis/jets_skims",
+
+    "jet_veto_map" : [
+        "$DATADIR/hotjets-UL18.root",
+        "h2hot_ul18_plus_hem1516_and_hbp2m1",
+        ["eta", "phi"]
+    ],
+
+    "jet_correction_mc": [
+        "$DATADIR/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt",
+        "$DATADIR/Summer19UL18_V5_MC_L2Relative_AK4PFchs.txt",
+        "$DATADIR/Summer19UL18_V5_MC_L3Absolute_AK4PFchs.txt"
+    ],
+    "jet_uncertainty": "$DATADIR/Summer19UL18_V5_MC_Uncertainty_AK4PFchs.txt",
+    "jet_resolution": "$DATADIR/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt",
+    "jet_ressf": "$DATADIR/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt",
+    "smear_met": false,
+
+    // global selection before the analysis selection (used only for MET re-calc)
+
+    "good_jet_id": "cut:tightlepveto",
+    "good_jet_puId": "skip", // not used
+    "good_jet_lepton_distance": 0.4, // not used
+    "good_jet_eta_min": -2.4,
+    "good_jet_eta_max": 2.4,
+    "good_jet_pt_min": 20,
+    "good_jet_veto_lepton": false,
+    "btag": "deepjet:medium",
+
+    // slepton analysis selection
+
+    // muon veto
+    "muon_veto_pt_min"   :  20,
+    "muon_veto_eta_min"  : -2.4,
+    "muon_veto_eta_max"  :  2.4,
+    "muon_veto_ID"       :  "looseId",
+    "muon_veto_pfIsoId"  :  2, // loose: >= 2
+
+    // ele veto
+    "elec_veto_pt"        :  20,
+    "elec_veto_eta_min"   : -2.4,
+    "elec_veto_eta_max"   :  2.4,
+    "elec_veto"           : "convVeto",
+    "elec_ID"             : "mvaIso_WPL",
+    
+    // reco Tau Jet:
+    "jet_pt_min"   :  30,
+    "jet_eta_min"  : -2.1,
+    "jet_eta_max"  :  2.1,
+    "jet_jetId"    :  6, // tight lepton veto
+    "jet_dxy_min"  :  0.2, // cm
+    
+    // pfCand selection:
+    "pfcand_pt"         : 1.0,
+    "pfcand_eta_min"    : -2.4,
+    "pfcand_eta_max"    : 2.4,
+    "track"             : "hasTrackDetails",
+
+    // MET cut
+    "MET_cut"   : 120,
+    
+    // deltaphi between jets
+    "dphi_j1j2" : 0.5, // >=0.5
+
+    // Tagger part
+    "score_pass" : [0.05, 0.99],
+    "loose_thr" : 0.05,
+    "tight_thr" : 0.99,
+
+    "hists": "$CONFDIR/../hists_configs/stau2018_signal_hist_mc.json",
+    
+    "cuts_to_histogram" : [
+        // "muon_veto",
+        // "elec_veto",
+        // "dy_gen_sfs",
+        // "two_jets",
+        // "two_jets_charged",
+        "two_jets_displ",
+        "two_jets_loose",
+        "exactly_two_jets_loose",
+        "dphi_min_cut",
+        // "ht_cut"
+    ]
+}
