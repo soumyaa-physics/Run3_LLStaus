@@ -1,32 +1,38 @@
-{
-    "year": "ul2018",
-    "file_mode": "local",
-    "xrootddomain": "xrootd-cms.infn.it",
+{  // CONTROL REGIONNNNNNNNNNNN
+
+    "year": "2024",
+    "file_mode": "xrootd",
+    "xrootddomain": "cms-xrd-global.cern.ch",
     "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
-    "datadir": "configs/data_UL/ul2018",
-    "store": "/pnfs/desy.de/cms/tier2/store/user/sobhatta/LongLivedStaus/NanoAOD",
-    "rng_seed_file": "$CONFDIR/seed.txt",
+    // for now to check using 2018 datasets
+    "datadir": "configs/datasets/2024",
+    // "store": "/pnfs/desy.de/cms/tier2/store/user/sobhatta/LongLivedStaus/NanoAOD",
+    "rng_seed_file": "$CONFDIR/seed.txt", // -- why do we need this
     "compute_systematics": false,
-    // "lumimask": "",
+    "lumimask": "",
     "luminosity": 109.82, // fb-1
-    "crosssections": "$CONFDIR/crosssections.json",
+    "crosssections": "$CONFDIR/crosssections_old.json",
     "apply_met_filters": true,
     "exp_datasets": {
         "SingleMuon": [
-            "$STOREDIR/SingleMuon/crab_SingleMuon_2018A_UL/230609_094540/*/*.root",
-            "$STOREDIR/SingleMuon/crab_SingleMuon_2018B_UL/230608_152338/*/*.root",
-            "$STOREDIR/SingleMuon/crab_SingleMuon_2018C_UL/230608_152344/*/*.root",
-            "$STOREDIR/SingleMuon/crab_SingleMuon_2018D_UL/230608_152349/*/*.root"
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024C/230609_094540/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024D/230608_152338/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024E/230608_152344/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_202F/230608_152349/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_202G/230608_152349/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_202H/230608_152349/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_202I-v1/230608_152349/*/*.root",
+            // "$STOREDIR/SingleMuon/crab_SingleMuon_202I-v2/230608_152349/*/*.root"
             ]
     },
     "mc_datasets": {
-
+        "WW_TuneCP5_13p6TeV": "$DATADIR/Run3_Winter2024_WW_TuneCP5_xrd.txt"
         // "QCD_Pt_15to30_TuneCP5_13TeV_pythia8" : [ "$STOREDIR/QCD_Pt_15to30_TuneCP5_13TeV_pythia8/*/*/*/*.root", ],
     },
     "dataset_for_systematics": {
     },
     "dataset_trigger_order": [
-        "SingleMuon",
+        "SingleMuon"
     ],
     "dataset_trigger_map": {
         "SingleMuon": [
@@ -35,65 +41,66 @@
         ]
     },
 
-    "pileup_reweighting": "$DATADIR/pileup.root",
+    "pileup_reweighting": "$CONFIGDIR/scalefactors/2024/puWeights_CDEFGHI.json",
     "muon_sf": [
         [
-            "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_ID.root",
-            "NUM_TightID_DEN_TrackerMuons_abseta_pt",
-            ["abseta", "pt"]
-        ],
-        [
-            "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
-            "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+            "$CONFIGDIR/scalefactors/2024/muon_Z.json",
             ["abseta", "pt"]
         ]
+        // [
+        //     "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
+        //     "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
+        //     ["abseta", "pt"]
+        // ]
     ],
-    "muon_sf_trigger": [
-        [
-            "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
-            "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt",
-            ["abseta", "pt"]
-        ]
-    ],
-    "W_jet_reweight": [
-        // Njets: [0, 1, 2, 3, 4]
-        [
-            0.7472272411,
-            0.1722860063,
-            0.1056230421,
-            0.05826155908,
-            0.04750676936
-        ]
-    ],
-    "DY_jet_reweight": [
-        // Njets: [0, 1, 2, 3, 4]
-        [
-            0.08123357276,
-            0.01627402843,
-            0.011861352,
-            0.006063462928,
-            0.005891990161
-        ]
-    ],
-    "DY_ZptLO_weights": [
-        "$DATADIR/zptmass_weights_UL2018.root",
-        "zptmass_weight",
-        ["pt", "mass"]
-    ],
+    // "muon_sf_trigger": [
+    //     [
+    //         "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
+    //         "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt",
+    //         ["abseta", "pt"]
+    //     ]
+    // ],
+    // "W_jet_reweight": [
+    //     // Njets: [0, 1, 2, 3, 4]
+    //     [
+    //         0.7472272411,
+    //         0.1722860063,
+    //         0.1056230421,
+    //         0.05826155908,
+    //         0.04750676936
+    //     ]
+    // ],
+    // "DY_jet_reweight": [
+    //     // Njets: [0, 1, 2, 3, 4]
+    //     [
+    //         0.08123357276,
+    //         0.01627402843,
+    //         0.011861352,
+    //         0.006063462928,
+    //         0.005891990161
+    //     ]
+    // ],
+
+    // "DY_ZptLO_weights": [
+    //     "$DATADIR/zptmass_weights_UL2018.root",
+    //     "zptmass_weight",
+    //     ["pt", "mass"]
+    // ],
     "jet_fake_rate" : [
-        "/data/dust/user/mykytaua/softLLSTAU/LLStaus_Run2/Analysis/output_iteration_4/2018/output_wjet/wjet_fake_v1/fake_rate_ext/fake_rate_jet_dxy_pt.root",
+        "$CONFIGDIR/scalefactors/2024/jetid.json",
         "fake_rate_jet_dxy_pt",
         ["jet_pt", "jet_dxy"]
     ],
     "predict_yield" : false,
     "flavour_fake_rate_study" : false, // all other analysis tools will be disabled
     
-    "jet_veto_map" : [
-        "$DATADIR/hotjets-UL18.root",
-        "h2hot_ul18_plus_hem1516_and_hbp2m1",
-        ["eta", "phi"]
-    ],
+    // "jet_veto_map" : [
+    //     "$DATADIR/hotjets-UL18.root",
+    //     "h2hot_ul18_plus_hem1516_and_hbp2m1",
+    //     ["eta", "phi"]
+    // ],
 
+    // keeping everything here the same:
     // tag muon:
     "muon_pt_min"   :  28,
     "muon_eta_min"  : -2.4,

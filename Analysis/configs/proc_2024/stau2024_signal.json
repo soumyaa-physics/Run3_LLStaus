@@ -23,6 +23,9 @@
         //     "$STOREDIR/MET/crab_MET_2018C_UL/230415_105814/*/*.root",
         //     "$STOREDIR/MET/crab_MET_2018D_UL/230414_182515/*/*.root"
         // ]
+        "mc_datasets" : {
+            // Dataset: /DYJetsToLL_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/RunIII2024Summer24NanoAODv15-Pilot2024wmLHEGS_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM 
+        }
     },
     "data_eras": {
         "2024C": [379412, 380252],

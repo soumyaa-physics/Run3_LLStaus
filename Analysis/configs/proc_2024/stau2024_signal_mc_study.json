@@ -8,7 +8,7 @@
     "store": "",
     "rng_seed_file": "$CONFDIR/seed.txt",
     "compute_systematics": false,
-    "luminosity": 124.0, // fb-1
+    "luminosity": 109.82, // fb-1
     "crosssections": "$CONFDIR/../crosssections.json",
     "apply_met_filters": true,
     "dxy_cut_study": false,

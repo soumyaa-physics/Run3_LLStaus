@@ -40,12 +40,12 @@ class Processor(pepper.ProcessorBasicPhysics):
         if "muon_sf" not in config or len(config["muon_sf"]) == 0:
             logger.warning("No muon scale factors specified")
 
-        if "muon_sf_trigger" not in config or \
-            len(config["muon_sf_trigger"]) == 0:
-            logger.warning("No single muon trigger scale factors specified")
+        # if "muon_sf_trigger" not in config or \
+        #     len(config["muon_sf_trigger"]) == 0:
+        #     logger.warning("No single muon trigger scale factors specified")
 
-        if "DY_ZptLO_weights" not in config:
-            logger.warning("No DY Zpt/mass reweighting specified")
+        # if "DY_ZptLO_weights" not in config:
+        #     logger.warning("No DY Zpt/mass reweighting specified")
 
 
         # It is not recommended to put anything as member variable into a
@@ -121,55 +121,55 @@ class Processor(pepper.ProcessorBasicPhysics):
         selector.add_cut("Lead_pass_trigger", self.lead_pass_trigger)
         selector.add_cut("muon_sfs", partial(self.get_muon_sfs, is_mc=is_mc))
         
-        # veto all loose muons
-        selector.set_column("muon_veto", self.muons_veto)
-        selector.add_cut("loose_muon_veto", self.loose_muon_veto_cut)
+        # # veto all loose muons
+        # selector.set_column("muon_veto", self.muons_veto)
+        # selector.add_cut("loose_muon_veto", self.loose_muon_veto_cut)
         
-        # veto all loose electrons
-        selector.set_column("electron_veto", self.electron_veto)
-        selector.add_cut("loose_electron_veto", self.loose_electron_veto_cut)
+        # # veto all loose electrons
+        # selector.set_column("electron_veto", self.electron_veto)
+        # selector.add_cut("loose_electron_veto", self.loose_electron_veto_cut)
         
-        # mt of muon and pt_miss
-        selector.set_column("mt_muon", partial(self.mt, name="Muon_tag"))
-        selector.add_cut("mt_muon", self.mt_muon_cut)
+        # # mt of muon and pt_miss
+        # selector.set_column("mt_muon", partial(self.mt, name="Muon_tag"))
+        # selector.add_cut("mt_muon", self.mt_muon_cut)
         
-        if is_mc:
-            selector.set_column("sum_ll_gen", self.sum_ll_gen)
-        selector.add_cut("dy_gen_sfs", partial(self.get_dy_gen_sfs, is_mc=is_mc, dsname=dsname))
+        # if is_mc:
+        #     selector.set_column("sum_ll_gen", self.sum_ll_gen)
+        # selector.add_cut("dy_gen_sfs", partial(self.get_dy_gen_sfs, is_mc=is_mc, dsname=dsname))
 
-        # add cuts and selections on the jets
-        selector.set_column("Jet_select", self.jet_selection)
-        if self.config["b-veto"]:
-            selector.add_cut("b-veto", partial(self.b_tagged_jet_cut, name="Jet_select"))
-        selector.set_column("Jet_select", self.jet_veto_drop)
-        selector.add_cut("has_more_two_jets", self.has_more_two_jets)
-        selector.set_column("Jet_select", self.getloose_jets)
-        # return
-        selector.set_column("PfCands", self.pfcand_valid)
-        selector.set_column("Jet_lead_pfcand", partial(self.get_matched_pfCands, match_object="Jet_select", dR=0.4))
-        selector.set_column("Jet_select", self.set_jet_dxy)
-        selector.add_cut("mt_muon2", self.mt_muon_cut)
+        # # add cuts and selections on the jets
+        # selector.set_column("Jet_select", self.jet_selection)
+        # if self.config["b-veto"]:
+        #     selector.add_cut("b-veto", partial(self.b_tagged_jet_cut, name="Jet_select"))
+        # selector.set_column("Jet_select", self.jet_veto_drop)
+        # selector.add_cut("has_more_two_jets", self.has_more_two_jets)
+        # selector.set_column("Jet_select", self.getloose_jets)
+        # # return
+        # selector.set_column("PfCands", self.pfcand_valid)
+        # selector.set_column("Jet_lead_pfcand", partial(self.get_matched_pfCands, match_object="Jet_select", dR=0.4))
+        # selector.set_column("Jet_select", self.set_jet_dxy)
+        # selector.add_cut("mt_muon2", self.mt_muon_cut)
 
-        selector.add_cut("has_more_two_loose-jets", self.has_more_two_jets)
+        # selector.add_cut("has_more_two_loose-jets", self.has_more_two_jets)
 
-        selector.add_cut("two_loose_jets", self.has_two_jets)
+        # selector.add_cut("two_loose_jets", self.has_two_jets)
         
-        # Variables related to the two jets:
-        selector.set_column("sum_jj", self.sum_jj)
-        selector.set_multiple_columns(self.mt_jets)
-        selector.set_column("dphi_jet1_jet2", self.dphi_jet1_jet2)
-        selector.add_cut("dphi_min_cut", self.dphi_min_cut)
-        selector.set_column("mt2_j1_j2_MET", self.get_mt2)
-        selector.set_column("binning_schema", self.binning_schema)
+        # # Variables related to the two jets:
+        # selector.set_column("sum_jj", self.sum_jj)
+        # selector.set_multiple_columns(self.mt_jets)
+        # selector.set_column("dphi_jet1_jet2", self.dphi_jet1_jet2)
+        # selector.add_cut("dphi_min_cut", self.dphi_min_cut)
+        # selector.set_column("mt2_j1_j2_MET", self.get_mt2)
+        # selector.set_column("binning_schema", self.binning_schema)
         
-        # Tagger part for calculating scale factors
-        # Scale factors should be calculated -
-        # before cuts on the number of the jets
-        selector.set_multiple_columns(self.set_njets_pass)
-        if self.config["predict_yield"]:
-            selector.set_multiple_columns(partial(self.predict_yield, weight=selector.systematics["weight"]))
+        # # Tagger part for calculating scale factors
+        # # Scale factors should be calculated -
+        # # before cuts on the number of the jets
+        # selector.set_multiple_columns(self.set_njets_pass)
+        # if self.config["predict_yield"]:
+        #     selector.set_multiple_columns(partial(self.predict_yield, weight=selector.systematics["weight"]))
 
-        selector.add_cut("two_loose_jets_final", self.has_two_jets)
+        # selector.add_cut("two_loose_jets_final", self.has_two_jets)
         
         # selector.set_column("Jet_select", self.gettight_jets)
         # selector.add_cut("two_tight_jets", self.has_two_jets)        
