@@ -3,7 +3,7 @@
  */
 
 #include <memory>
-
+#include <fstream>
 #include <boost/filesystem.hpp>
 #include <boost/math/constants/constants.hpp>
 
@@ -19,7 +19,7 @@
 #include "FWCore/Utilities/interface/StreamID.h"
 #include "PhysicsTools/TensorFlow/interface/TensorFlow.h"
 
-#include "LLStaus_Run2/Production/interface/DisTauTag_input.h"
+#include "Run3_LLStaus/Production/interface/DisTauTag_input.h"
 
 namespace {
     template <typename T>
@@ -98,7 +98,7 @@ DisTauTag::DisTauTag(const edm::ParameterSet& config)
   produces<edm::ValueMap<float>>("score0");
   produces<edm::ValueMap<float>>("score1");
   
-  tensorflow::setLogging("2");
+//   tensorflow::setLogging("2");
 }
 
 void DisTauTag::beginStream(edm::StreamID) {

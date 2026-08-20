@@ -107,7 +107,7 @@ def get_args() :
     if (args.sampleType not in ["Data", "MC", "Embed"]) :
         raise ValueError("sampleType must be one of the following: [Data, MC, Embed]")
     
-    if (args.era not in ["2016", "2017", "2018"]) :
-        raise ValueError("Era must be one of the following: [2016, 2017, 2018]")
+    if (args.era not in ["2016", "2017", "2018", "2024"]) :
+        raise ValueError("Era must be one of the following: [2016, 2017, 2018, 2024")
     
     return args

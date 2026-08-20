@@ -7,7 +7,7 @@ import importlib
 
 import FWCore.ParameterSet.Config as cms
 
-from LLStaus_Run2.Production.arg_config import *
+from Run3_LLStaus.Production.arg_config import *
 args = get_args()
 
 d_procConfig = {
@@ -90,7 +90,7 @@ process.source = cms.Source("PoolSource",
     fileNames = cms.untracked.vstring(),
     secondaryFileNames = cms.untracked.vstring()
     )
-from LLStaus_Run2.Production.readFileList import *
+from Run3_LLStaus.Production.readFileList import *
 if len(args.inputFiles) > 0:
     addList(process.source.fileNames, args.inputFiles, fileNamePrefix=args.fileNamePrefix)
 elif len(args.sourceFile) > 0:
@@ -200,7 +200,7 @@ else :
     from PhysicsTools.NanoAOD.nano_cff import nanoAOD_customizeData
     process = nanoAOD_customizeData(process)
 
-from LLStaus_Run2.Production.customize_nanoaod_eventcontent_cff import *
+from Run3_LLStaus.Production.customize_nanoaod_eventcontent_cff import *
 customize_process_and_associate(process, isMC = isMC, disTauTagOutputOpt = args.disTauTagOutputOpt)
 
 # End of customisation functions

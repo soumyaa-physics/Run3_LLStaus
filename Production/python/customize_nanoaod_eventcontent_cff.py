@@ -95,11 +95,11 @@ def customize_process_and_associate(process, isMC, disTauTagOutputOpt = 1) :
             #maxEInEmTowers                  = Var("maxEInEmTowers"                  , float),
             #maxEInHadTowers                 = Var("maxEInHadTowers"                 , float),
             #towersArea                      = Var("towersArea"                      , float),
-            detectorP4pt                    = Var("detectorP4.Pt"                   , float),
-            detectorP4eta                   = Var("detectorP4.Eta"                  , float),
-            detectorP4phi                   = Var("detectorP4.Phi"                  , float),
-            detectorP4mass                  = Var("detectorP4.M"                    , float),
-            detectorP4energy                = Var("detectorP4.E"                    , float),
+            detectorP4pt                    = Var("p4.Pt"                   , float),
+            detectorP4eta                   = Var("p4.Eta"                  , float),
+            detectorP4phi                   = Var("p4.Phi"                  , float),
+            detectorP4mass                  = Var("p4.M"                    , float),
+            detectorP4energy                = Var("p4.E"                    , float),
         ),
     )
     
