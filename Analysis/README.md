@@ -1,5 +1,13 @@
 # Analysis (STau 2018 UL setup) - Manual
 
+## Steps for RUN-3 analysis:
+
+Using the stau2024_signal.json config file i run the processor: stau_processor_signal.py using:
+```sh
+python3 -m pepper.runproc --debug stau_processor_signal.py configs/proc_2024/stau2024_signal.json
+```
+you can get cutflows and histograms
+
 ## Main steps of fake rate estimation (MC-based):
 
 1. For producing the histograms for WJets enriched region:

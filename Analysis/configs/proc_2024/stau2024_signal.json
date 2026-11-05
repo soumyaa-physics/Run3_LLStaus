@@ -46,9 +46,6 @@
         "325500": "Hessian",
         "320900" : "MC_Gaussian"
     },
-    // need to update this:
-// /SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1mm_v1/*/*/*/*
-    // SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau10mm_v1/SUS-Run3Summer2024-stau500_lsp1_ctau10mm/NANOAOD/260916_103912/0000/ .
 
     "mc_datasets": {
         // all signal
