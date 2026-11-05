@@ -1,172 +1,211 @@
-{  // CONTROL REGIONNNNNNNNNNNN
+{
 
     "year": "2024",
     "file_mode": "local",
-    "xrootddomain": "cms-xrd-global.cern.ch",
-    "configdir" : "/data/dust/user/vashisht/Run3_LLStaus/Analysis/configs/proc_2024/",
-    "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
-    // for now to check using 2018 datasets
-    "datadir": "configs/datasets/2024",
-    "store": "/data/dust/user/vashisht/Run3_LLStaus/Analysis/configs/datasets/privately_prod/",
-    "rng_seed_file": "$CONFDIR/seed.txt", // -- why do we need this
-    "compute_systematics": false,
-    "lumimask": "",
+    "xrootddomain": "xrootd-cms.infn.it",
+    // "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
+    // "datadir": "configs/data_UL/2024",
+    "store": "/pnfs/desy.de/cms/tier2/store/user/svashish/LLSTauProduction_RUN3/",
+    "rng_seed_file": "$CONFDIR/seed.txt",
+    "compute_systematics": true,
+    // "lumimask": "$CONFDIR/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt",
     "luminosity": 109.82, // fb-1
-    "crosssections": "$CONFDIR/crosssections_old.json",
+    "crosssections": "$CONFDIR/../crosssections.json",
     "apply_met_filters": true,
+    // idk what this is:
+    "dxy_cut_study": false,
+    "stau_properties_study": false,
+    "mc_lumifactors": "$CONFDIR/lumifactors_stau2018.json",
     "exp_datasets": {
-        // "SingleMuon": [
-
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024C/230609_094540/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024D/230608_152338/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_2024E/230608_152344/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_202F/230608_152349/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_202G/230608_152349/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_202H/230608_152349/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_202I-v1/230608_152349/*/*.root",
-            // "$STOREDIR/SingleMuon/crab_SingleMuon_202I-v2/230608_152349/*/*.root"
-            // ]
+        // "DATA_MET": [
+        //     "$STOREDIR/MET/crab_MET_2018A_UL/230415_105803/*/*.root",
+        //     "$STOREDIR/MET/crab_MET_2018B_UL/230415_105809/*/*.root",
+        //     "$STOREDIR/MET/crab_MET_2018C_UL/230415_105814/*/*.root",
+        //     "$STOREDIR/MET/crab_MET_2018D_UL/230414_182515/*/*.root"
+        // ]
+        // "mc_datasets" : {
+        //     "Dataset: /DYJetsToLL_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/RunIII2024Summer24NanoAODv15-Pilot2024wmLHEGS_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM"
+        // }
     },
+    "data_eras": {
+        "2024C": [379412, 380252],
+        "2024D": [380253,  380947],
+        "2024E-v1": [380948, 381383 ],
+        "2024E-v2": [381384, 381943 ],
+        "2024F": [381944,383779],
+        "2024G": [383780 , 385813 ],
+        "2024H": [385814, 386408],
+        "2024I-v1": [386409,  386797],
+        "2024I-v2": [ 386798,  387121]
+    },
+    // idk what this is:
+    "pdf_types": {
+        "91400": "Hessian",
+        "306000": "Hessian",
+        "325300": "Hessian",
+        "325500": "Hessian",
+        "320900" : "MC_Gaussian"
+    },
+    // need to update this:
+// /SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1mm_v1/*/*/*/*
+    // SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau10mm_v1/SUS-Run3Summer2024-stau500_lsp1_ctau10mm/NANOAOD/260916_103912/0000/ .
+
     "mc_datasets": {
-        "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8": [
-            "$STOREDIR/DYto2Tau-2Jets_MLL-50_0J/*.root"
-        ]
+        // all signal
+        // "SMS-TStauStau_MStau-700_ctau-10mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau10mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-100mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau100mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-1000mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau1000mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-10m_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau10m_v3/*/*/*/*/*.root"],
 
-        // all of these are nanoAOD samples:
-        // "DYJetsToLL_M-50_TuneCP5_13TeV-madgraphMLM-pythia8": "",
-        // "WW_TuneCP5_13p6TeV": "$DATADIR/Run3_Winter2024_WW_TuneCP5_xrd.txt"
-        // "QCD_Pt_15to30_TuneCP5_13TeV_pythia8" : [ "$STOREDIR/QCD_Pt_15to30_TuneCP5_13TeV_pythia8/*/*/*/*.root", ],
+        "SMS-TStauStau_MStau-500_ctau-1mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-10mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau10mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-100mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau100mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-1000mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1000mm_v1/*/*/*/*/*.root"],
+
     },
+
+    // need to change this:
+
+    "pileup_reweighting": "$DATADIR/pileup.root",
+    "DY_ZptLO_weights": [
+        "$DATADIR/zptmass_weights_UL2018.root",
+        "zptmass_weight",
+        ["pt", "mass"]
+    ],
+    "MET_trigger_sfs": [
+        "/data/dust/user/sobhatta/work/LongLivedStaus/LLStaus_Run2/Analysis/output/trigger_sf_study/2018/trigger-eff-sfs_MET.root",
+        "h1_sf",
+        ["pt"]
+    ],
+    "MET_trigger_plateau" : 250, // for 120-250 GeV - 2x stat. unc. of the MET_trigger_sfs is used, for > 250 - 1x stat. unc.
+    "DY_jet_reweight": [
+        // Njets: [0, 1, 2, 3, 4]
+        [  
+            0.0812335727642246,
+            0.0176155683054349,
+            0.0136231900177429,
+            0.0072127496418802,
+            0.00786746026143814
+        ]
+    ],
+    "W_jet_reweight": [
+        // Njets: [0, 1, 2, 3, 4]
+        [
+            0.747227241113348,
+            0.187506782185615,
+            0.122313368332312,
+            0.0700485945835121,
+            0.0612378446670939
+        ]
+    ],
     "dataset_for_systematics": {
     },
     "dataset_trigger_order": [
-        "SingleMuon"
+        "DATA_MET",
+        "Displaced_ditau"
     ],
     "dataset_trigger_map": {
-        "SingleMuon": [
-            "HLT_IsoMu24",
-            "HLT_IsoMu27"
+        "DATA_MET": [
+            "HLT_PFMET120_PFMHT120_IDTight"
+        ],
+        "Displaced_ditau": [
+            "HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1_noDxy",
+            // "HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1"
         ]
     },
 
-    "pileup_reweighting": "./configs/scalefactors/2024/puWeights_CDEFGHI.json",
-    // "muon_sf": [
-    //     [
-    //         "./configs/scalefactors/2024/muon_Z.json",
-    //         ["abseta", "pt"]
-    //     ]
-        // [
-        //     "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_ISO.root",
-        //     "NUM_TightRelIso_DEN_TightIDandIPCut_abseta_pt",
-        //     ["abseta", "pt"]
-        // ]
-    // ],
-    // "muon_sf_trigger": [
-    //     [
-    //         "$DATADIR/Efficiencies_muon_generalTracks_Z_Run2018_UL_SingleMuonTriggers.root",
-    //         "NUM_IsoMu24_DEN_CutBasedIdTight_and_PFIsoTight_abseta_pt",
-    //         ["abseta", "pt"]
-    //     ]
-    // ],
-    // "W_jet_reweight": [
-    //     // Njets: [0, 1, 2, 3, 4]
-    //     [
-    //         0.7472272411,
-    //         0.1722860063,
-    //         0.1056230421,
-    //         0.05826155908,
-    //         0.04750676936
-    //     ]
-    // ],
-    "DY_jet_reweight": [
-        // Njets: [0, 1, 2, 3, 4]
-        [
-            0.08123357276,
-            0.01627402843,
-            0.011861352,
-            0.006063462928,
-            0.005891990161
-        ]
-    ],
-
-    // "DY_ZptLO_weights": [
-    //     "$DATADIR/zptmass_weights_UL2018.root",
-    //     "zptmass_weight",
-    //     ["pt", "mass"]
-    // ],
+    // data-driven n-pass yield prediction:
     "jet_fake_rate" : [
-        "./configs/scalefactors/2024/jetid.json",
+        "/data/dust/user/mykytaua/nfscms/softLLSTAU/LLStaus_Run2/Analysis/output_iteration_6/2018/output_wjet/wjet_v4_fake_rate_dxy0p2/fake_rate/fake_rate_jet_dxy_pt.root",
         "fake_rate_jet_dxy_pt",
         ["jet_pt", "jet_dxy"]
     ],
-    "predict_yield" : false,
-    "flavour_fake_rate_study" : false, // all other analysis tools will be disabled
-    
-    // "jet_veto_map" : [
-    //     "$DATADIR/hotjets-UL18.root",
-    //     "h2hot_ul18_plus_hem1516_and_hbp2m1",
-    //     ["eta", "phi"]
-    // ],
+    "predict_yield" : true,
 
-    // keeping everything here the same:
-    // tag muon:
-    "muon_pt_min"   :  28,
-    "muon_eta_min"  : -2.4,
-    "muon_eta_max"  :  2.4,
-    "muon_ID"       :  "tightId",
-    "muon_pfIsoId"  : 4, // tight: >= 4
-    "muon_absdxy"   : 0.2,
-    "muon_absdz"    : 0.5,
+    "propagate_eff_factors" : true,
+    "signal_eff_factors": { // signal efficiency factors are set to 15% per tight jet
+        "central": 1.0,
+        "up": 1.15,
+        "down": 0.85
+    },
 
-    // veto electron:
-    "elec_veto_pt"        :  20,
-    "elec_veto_eta_min"   : -2.4,
-    "elec_veto_eta_max"   :  2.4,
-    "elec_veto"           : "convVeto",
-    "elec_ID"             : "mvaIso_WPL",
+    "skim_path" : "/afs/desy.de/user/m/mykytaua/nfscms/softLLSTAU/LLStaus_Run2/Analysis/jets_skims",
 
-    // veto muon:
+    "jet_veto_map" : [
+        "$DATADIR/hotjets-UL18.root",
+        "h2hot_ul18_plus_hem1516_and_hbp2m1",
+        ["eta", "phi"]
+    ],
+
+    "jet_correction_mc": [
+        "$DATADIR/Summer19UL18_V5_MC_L1FastJet_AK4PFchs.txt",
+        "$DATADIR/Summer19UL18_V5_MC_L2Relative_AK4PFchs.txt",
+        "$DATADIR/Summer19UL18_V5_MC_L3Absolute_AK4PFchs.txt"
+    ],
+    "jet_uncertainty": "$DATADIR/Summer19UL18_V5_MC_Uncertainty_AK4PFchs.txt",
+    "jet_resolution": "$DATADIR/Summer19UL18_JRV2_MC_PtResolution_AK4PFchs.txt",
+    "jet_ressf": "$DATADIR/Summer19UL18_JRV2_MC_SF_AK4PFchs.txt",
+    "smear_met": false,
+
+    // global selection before the analysis selection (used only for MET re-calc)
+
+    "good_jet_id": "cut:tightlepveto",
+    "good_jet_puId": "skip", // not used
+    "good_jet_lepton_distance": 0.4, // not used
+    "good_jet_eta_min": -2.4,
+    "good_jet_eta_max": 2.4,
+    "good_jet_pt_min": 20,
+    "good_jet_veto_lepton": false,
+    "btag": "deepjet:medium",
+
+    // slepton analysis selection
+
+    // muon veto
     "muon_veto_pt_min"   :  20,
     "muon_veto_eta_min"  : -2.4,
     "muon_veto_eta_max"  :  2.4,
     "muon_veto_ID"       :  "looseId",
-    "muon_veto_pfIsoId"  : 2, // loose: >= 2
+    "muon_veto_pfIsoId"  :  2, // loose: >= 2
 
-    // MET cut
-    "MET_pt"             : 50,
-
-    // mt muon
-    "mt_muon_min"        : 60,
-    "mt_muon_max"        : 120,
-
-    // jet selection
+    // ele veto
+    "elec_veto_pt"        :  20,
+    "elec_veto_eta_min"   : -2.4,
+    "elec_veto_eta_max"   :  2.4,
+    "elec_veto"           : "convVeto",
+    "elec_ID"             : "mvaIso_WP80",
+    
+    // reco Tau Jet:
     "jet_pt_min"   :  30,
     "jet_eta_min"  : -2.1,
     "jet_eta_max"  :  2.1,
-    "jet_jetId"    :  6, // tight lepton veto
-    "tag_muon_veto_dR" :  0.4,
-    "jet_dxy_min"  : 0.2, // cm
-    "dphi_j1j2"    : 0.5,
-    "b-veto"       : false,
-
+    "jet_jetId"    :  6, // tight lepton veto -> is this Jet_genJetIdx
+    "jet_dxy_min"  :  0.2, // cm
+    
     // pfCand selection:
     "pfcand_pt"         : 1.0,
     "pfcand_eta_min"    : -2.4,
     "pfcand_eta_max"    : 2.4,
-    "track"             : "hasTrackDetails",
+    // "track"             : "hasTrackDetails",
+
+    // MET cut
+    "MET_cut"   : 120,
+    
+    // deltaphi between jets
+    "dphi_j1j2" : 0.5, // >=0.5
 
     // Tagger part
-    // "score_pass" : [0.05, 0.1, 0.15, 0.2, 0.25, 0.30, 0.35, 0.40, 0.45, 0.5, 0.95, 0.9900, 0.9972, 0.9996],
-    "score_pass" : [0.05, 0.9900],
+    "score_pass" : [0.05, 0.99],
     "loose_thr" : 0.05,
-    "tight_thr" : 0.9900,
+    "tight_thr" : 0.99,
 
-    "hists": "$CONFDIR/../hists_configs/wjets_hist.json",
-
+    // "hists": "$CONFDIR/stau2018_signal_stau_hist.json",
+    // "hists": "$CONFDIR/stau2018_signal_hist.json",
+    "hists": "$CONFDIR/../hists_configs/stau2024_signal_testing.json"
+    
+    // There are many histograms in output data, for prediction we need only one 
+    // the load on histograms transfer one of the biggest bottleneck in the code
     // "cuts_to_histogram" : [
-    //     "mt_muon2",
-    //     "has_more_two_jets",
-    //     "two_loose_jets",
-    //     "two_loose_jets_final"
-    // ]
+    //         "two_loose_jets_final",
+    //         "ht_cut"
+    //     ]
 }

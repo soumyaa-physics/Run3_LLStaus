@@ -87,18 +87,18 @@ class Processor(pepper.ProcessorBasicPhysics):
             selector.add_cut("W jet reweighting",
                 partial(self.do_w_jet_reweighting))
 
-        if is_mc and "pileup_reweighting" in self.config:
-            selector.add_cut("Pileup reweighting", partial(
-                self.do_pileup_reweighting, dsname))
+        # if is_mc and "pileup_reweighting" in self.config:
+        #     selector.add_cut("Pileup reweighting", partial(
+        #         self.do_pileup_reweighting, dsname))
         
         
-        # HEM 15/16 failure (2018)
-        if self.config["year"] == "ul2018":
-            selector.add_cut("HEM_veto", partial(self.HEM_veto, is_mc=is_mc))
+        # # HEM 15/16 failure (2018)
+        # if self.config["year"] == "ul2018":
+        #     selector.add_cut("HEM_veto", partial(self.HEM_veto, is_mc=is_mc))
 
-        if is_mc and self.config["year"] in ("2016", "2017", "ul2016pre",
-                                        "ul2016post", "ul2017"):
-            selector.add_cut("L1Prefiring", self.add_l1_prefiring_weights)
+        # if is_mc and self.config["year"] in ("2016", "2017", "ul2016pre",
+        #                                 "ul2016post", "ul2017"):
+        #     selector.add_cut("L1Prefiring", self.add_l1_prefiring_weights)
 
         selector.add_cut("MET filters", partial(self.met_filters, is_mc))
 
@@ -129,7 +129,7 @@ class Processor(pepper.ProcessorBasicPhysics):
         selector.set_multiple_columns(self.missing_energy)
         selector.set_column("num_b_tagged_jets", self.num_b_tagged_jets)
         selector.add_cut("no_b_tagged_jets", partial(self.b_tagged_jet_cut, name="Jet_select"))
-        selector.add_cut("jet_veto", partial(self.jet_veto, jet_name="Jet_select"))
+        # selector.add_cut("jet_veto", partial(self.jet_veto, jet_name="Jet_select"))
         
         # define jet flavour composition
         if is_mc:
@@ -268,7 +268,7 @@ class Processor(pepper.ProcessorBasicPhysics):
 
     @zero_handler
     def MET_trigger_sfs(self, data):
-        met_pt = data["MET"].pt
+        met_pt = data["PFMET"].pt
         sfs = self.config["MET_trigger_sfs"](pt=met_pt)
         return sfs
     
@@ -323,13 +323,13 @@ class Processor(pepper.ProcessorBasicPhysics):
         #         & (jets.jetId >= self.config["jet_jetId"] )
         #     )]
 
-        jets_noeta = jets[(self.config["jet_pt_min"] < jets.pt) & (jets.jetId >= self.config["jet_jetId"])]
+        jets_noeta = jets[(self.config["jet_pt_min"] < jets.pt) ]
         HT_noeta = ak.sum(jets_noeta.pt, axis=-1)
 
-        jets_nojetid = jets[(self.config["jet_eta_min"] < jets.eta) & (jets.eta < self.config["jet_eta_max"]) & (self.config["jet_pt_min"] < jets.pt)]
-        HT_nojetid = ak.sum(jets_nojetid.pt, axis=-1)
+        # jets_nojetid = jets[(self.config["jet_eta_min"] < jets.eta) & (jets.eta < self.config["jet_eta_max"]) & (self.config["jet_pt_min"] < jets.pt)]
+        # HT_nojetid = ak.sum(jets_nojetid.pt, axis=-1)
 
-        jets_nojetpt = jets[(self.config["jet_eta_min"] < jets.eta) & (jets.eta < self.config["jet_eta_max"]) & (jets.jetId >= self.config["jet_jetId"])]
+        jets_nojetpt = jets[(self.config["jet_eta_min"] < jets.eta) & (jets.eta < self.config["jet_eta_max"]) ]
         HT_nojetpt = ak.sum(jets_nojetpt.pt, axis=-1)
         
         return {
@@ -338,7 +338,7 @@ class Processor(pepper.ProcessorBasicPhysics):
             "HT" : HT,
             "HT_miss" : HT_miss,
             "HT_noeta" : HT_noeta,
-            "HT_nojetid" : HT_nojetid,
+            # "HT_nojetid" : HT_nojetid,
             "HT_nojetpt" : HT_nojetpt
         }
     
@@ -402,7 +402,7 @@ class Processor(pepper.ProcessorBasicPhysics):
     
     @zero_handler
     def MET_cut(self, data):
-        return data["MET"].pt > self.config["MET_cut"]
+        return data["PFMET"].pt > self.config["MET_cut"]
     
     @zero_handler
     def select_muons(self, data):
@@ -438,12 +438,12 @@ class Processor(pepper.ProcessorBasicPhysics):
 
     @zero_handler
     def jet_selection(self, data):
-        jets = data["Jet"]
+        jets = data["JetCHS"]
         jets = jets[(
             (self.config["jet_eta_min"] < jets.eta)
             & (jets.eta < self.config["jet_eta_max"])
             & (self.config["jet_pt_min"] < jets.pt)
-            & (jets.jetId >= self.config["jet_jetId"] )
+            # & (jets.jetId >= self.config["jet_jetId"] )
             )]
         return jets
 
@@ -465,12 +465,12 @@ class Processor(pepper.ProcessorBasicPhysics):
 
     @zero_handler
     def pfcand_valid(self, data):
-        pfCands = data["PFCandidate"]
+        pfCands = data["PFCand"]
         is_good = (
             (pfCands.pt > self.config["pfcand_pt"])
             & (pfCands.eta < self.config["pfcand_eta_max"])
             & (pfCands.eta > self.config["pfcand_eta_min"])
-            & (pfCands[self.config["track"]])
+            # & (pfCands[self.config["track"]])
         )
         pfCands_selected = pfCands[is_good]
         sort_idx = ak.argsort(pfCands_selected.pt, axis=-1, ascending=False)

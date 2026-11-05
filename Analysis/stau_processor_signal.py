@@ -106,31 +106,33 @@ class Processor(pepper.ProcessorBasicPhysics):
             self.config["dataset_trigger_order"])
         selector.add_cut("Trigger", partial(
             self.passing_trigger, pos_triggers, neg_triggers))
+            
+        print("Positive triggers:", pos_triggers)
+        print("Negative triggers:", neg_triggers)
+        # if is_mc and ( dsname.startswith("DYJetsToLL_M-50") or \
+        #             dsname.startswith("DY1JetsToLL_M-50") or \
+        #             dsname.startswith("DY2JetsToLL_M-50") or \
+        #             dsname.startswith("DY3JetsToLL_M-50") or \
+        #             dsname.startswith("DY4JetsToLL_M-50") ):
+        #     selector.add_cut("DY jet reweighting",
+        #         partial(self.do_dy_jet_reweighting))
+        # if is_mc and ( dsname.startswith("WJetsToLNu") or \
+        #             dsname.startswith("W1JetsToLNu") or \
+        #             dsname.startswith("W2JetsToLNu") or \
+        #             dsname.startswith("W3JetsToLNu") or \
+        #             dsname.startswith("W4JetsToLNu") ):
+        #     selector.systematics["weight"] = \
+        #         ak.full_like(selector.systematics["weight"], 1.0)
+        #     selector.add_cut("W jet reweighting",
+        #         partial(self.do_w_jet_reweighting))
 
-        if is_mc and ( dsname.startswith("DYJetsToLL_M-50") or \
-                    dsname.startswith("DY1JetsToLL_M-50") or \
-                    dsname.startswith("DY2JetsToLL_M-50") or \
-                    dsname.startswith("DY3JetsToLL_M-50") or \
-                    dsname.startswith("DY4JetsToLL_M-50") ):
-            selector.add_cut("DY jet reweighting",
-                partial(self.do_dy_jet_reweighting))
-        if is_mc and ( dsname.startswith("WJetsToLNu") or \
-                    dsname.startswith("W1JetsToLNu") or \
-                    dsname.startswith("W2JetsToLNu") or \
-                    dsname.startswith("W3JetsToLNu") or \
-                    dsname.startswith("W4JetsToLNu") ):
-            selector.systematics["weight"] = \
-                ak.full_like(selector.systematics["weight"], 1.0)
-            selector.add_cut("W jet reweighting",
-                partial(self.do_w_jet_reweighting))
-
-        if is_mc and "pileup_reweighting" in self.config:
-            selector.add_cut("Pileup reweighting", partial(
-                self.do_pileup_reweighting, dsname))
+        # if is_mc and "pileup_reweighting" in self.config:
+        #     selector.add_cut("Pileup reweighting", partial(
+        #         self.do_pileup_reweighting, dsname))
         
-        if is_mc and self.config["year"] in ("2016", "2017", "ul2016pre",
-                                        "ul2016post", "ul2017"):
-            selector.add_cut("L1Prefiring", self.add_l1_prefiring_weights)
+        # if is_mc and self.config["year"] in ("2016", "2017", "ul2016pre",
+        #                                 "ul2016post", "ul2017"):
+        #     selector.add_cut("L1Prefiring", self.add_l1_prefiring_weights)
 
         selector.add_cut("MET filters", partial(self.met_filters, is_mc))
         
@@ -144,82 +146,9 @@ class Processor(pepper.ProcessorBasicPhysics):
         selector.add_cut("muon_veto", self.muon_veto)
         selector.add_cut("elec_veto", self.elec_veto)
 
-        # Z-pt/mass reweighting for DY (taken from TauPOG workflow)
-        logger.debug(f"Applying DY ZptLO weights")
-        if is_mc and dsname.startswith("DY"):
-            selector.set_column("sum_ll_gen", self.sum_ll_gen)
-        selector.add_cut("dy_gen_sfs", partial(self.get_dy_gen_sfs, is_mc=is_mc, dsname=dsname))
-
-        # adding:
-        # 1) renormalization and factorization scale
-        # 2) Parton shower scale uncertainties
-        # 3) PDF uncertainties
-        if self.config["compute_systematics"] and is_mc:
-            self.add_generator_uncertainies(dsname, selector)
-
-        # Fill "Lepton" column with empty array because all events with leptons are droped
         selector.set_column("Lepton", lambda data: ak.Array([[]] * len(data)))
+        selector.set_column("Jet_select", self.jet_basis)
 
-        if (is_mc and self.config["compute_systematics"] 
-            and dsname not in self.config["dataset_for_systematics"]):
-            if hasattr(filler, "sys_overwrite"):
-                assert filler.sys_overwrite is None
-            variargs = self.get_jetmet_variation_args()
-            logger.debug(f"Running jetmet variations: {variargs}")
-            for variarg in variargs:
-                selector_copy = copy(selector)
-                filler.sys_overwrite = variarg.name
-                self.process_selection_jet_part(selector_copy, is_mc,
-                                                variarg, dsname, filler, era)
-                filler.sys_overwrite = None
-
-        # Do normal, no-variation run
-        self.process_selection_jet_part(selector, is_mc,
-                                        self.get_jetmet_nominal_arg(),
-                                        dsname, filler, era)
-
-
-    def process_selection_jet_part(self, selector, is_mc, variation, dsname, filler, era):
-        """Part of the selection that needs to be repeated for
-        every systematic variation done for the jet energy correction,
-        resultion and for MET"""
-        logger.debug(f"Running jet_part with variation {variation.name}")
-        reapply_jec = ("reapply_jec" in self.config
-                       and self.config["reapply_jec"])
-        selector.set_multiple_columns(partial(
-            self.compute_jet_factors, is_mc, reapply_jec, variation.junc,
-            variation.jer, selector.rng))
-
-        selector.set_column("OrigJet", selector.data["Jet"])
-        # this "Jet" jets are not used for MET, only for further selection steps ->
-        # this is not needed but in order to keep the same structure as in the original code
-        selector.set_column("Jet", partial(self.build_jet_column, is_mc))
-        selector.add_cut("no_b_tagged_jets", partial(self.b_tagged_jet_cut, name="Jet"))
-        # if "jet_puid_sf" in self.config and is_mc:
-        #     selector.add_cut("JetPUIdSFs", self.jet_puid_sfs)
-        # selector.set_column("Jet", self.jets_with_puid)
-
-        smear_met = "smear_met" in self.config and self.config["smear_met"]
-        selector.set_column("OrigMet", selector.data["MET"])
-        selector.set_column(
-            "MET", partial(self.build_met_column, is_mc, variation.junc,
-                           variation.jer if smear_met else None, selector.rng,
-                           era, variation=variation.met))
-
-        selector.add_cut("MET", self.MET_cut)
-        if is_mc: # which MET we use? -> the original scale factors were computed with OrigMet
-            selector.add_cut("MET_trigger_sfs", partial(self.MET_trigger_sfs,
-                                                        met_name="OrigMet"))
-
-        # HEM 15/16 failure (2018)
-        if self.config["year"] == "ul2018":
-            selector.add_cut("HEM_veto", partial(self.HEM_veto, is_mc=is_mc))
-
-        selector.add_cut("jet_veto", partial(self.jet_veto, jet_name="Jet"))
-
-        selector.set_column("Jet_select", partial(self.jet_selection, from_collection="Jet"))
-        
-        # define jets and HT variables (HT will not be redefined after changing Jet_select)
         if self.config["dxy_cut_study"]:
             self.dxy_cut_study(selector, dsname, is_mc)
             return
@@ -288,6 +217,7 @@ class Processor(pepper.ProcessorBasicPhysics):
         selector.set_column("Jet_lead_pfcand", partial(self.get_matched_pfCands, match_object="Jet_select", dR=0.4))
         selector.set_column("Jet_select", self.set_jet_dxy)
         selector.add_cut("checkpoint", lambda data: np.ones(len(data)))
+        selector.set_column("jet_score", self.jet_lead_score)
 
     @zero_handler
     def ht_cut(self, data):
@@ -308,8 +238,8 @@ class Processor(pepper.ProcessorBasicPhysics):
         genpart = tau.parent
         assert ak.all(abs(genpart.pdgId) == 15)
         # calculate travel distance and transverse travel distance wrt. to the mother vertex
-        tau["travel"] = np.sqrt(genpart.vertexX**2 + genpart.vertexY**2 + genpart.vertexZ**2)
-        tau["tr_travel"] = np.sqrt(genpart.vertexX**2 + genpart.vertexY**2)
+        tau["travel"] = np.sqrt(genpart.vx**2 + genpart.vy**2 + genpart.vz**2)
+        tau["tr_travel"] = np.sqrt(genpart.vx**2 + genpart.vy**2)
         return tau
 
     @zero_handler
@@ -485,37 +415,52 @@ class Processor(pepper.ProcessorBasicPhysics):
     def get_mt2(self, data):
         jet1 = data["Jet_select"][:,0]
         jet2 = data["Jet_select"][:,1]
-        met = data["MET"]
+        met = data["PFMET"]
+        jet1_px = jet1.pt * np.cos(jet1.phi)
+        jet1_py = jet1.pt * np.sin(jet1.phi)
+
+        jet2_px = jet2.pt * np.cos(jet2.phi)
+        jet2_py = jet2.pt * np.sin(jet2.phi)
+
+        met_px = met.pt * np.cos(met.phi)
+        met_py = met.pt * np.sin(met.phi)
         return mt2.mt2(
-            jet1.mass, jet1.px, jet1.py,
-            jet2.mass, jet2.px, jet2.py,
-            met.px, met.py,
+            jet1.mass, jet1_px, jet1_py,
+            jet2.mass, jet2_px, jet2_py,
+            met_px, met_py,
             0, 0
         )
         
     @zero_handler
     def missing_energy(self, data):
-        jets = data["Jet_select"]
-        HT_valid = ak.sum(jets.pt, axis=-1)
-    
-        px = ak.sum(jets.px, axis=-1)
-        py = ak.sum(jets.py, axis=-1)
-        HT_miss_valid = np.sqrt(px*px + py*py)
 
+        # Selected jets
+        jets = data["Jet_select"]
+
+        HT_valid = ak.sum(jets.pt, axis=-1)
+
+        px = ak.sum(jets.pt * np.cos(jets.phi), axis=-1)
+        py = ak.sum(jets.pt * np.sin(jets.phi), axis=-1)
+
+        HT_miss_valid = np.sqrt(px**2 + py**2)
+
+        # All jets
         jets = data["Jet"]
+
         HT = ak.sum(jets.pt, axis=-1)
 
-        px = ak.sum(jets.px, axis=-1)
-        py = ak.sum(jets.py, axis=-1)
-        HT_miss= np.sqrt(px*px + py*py)
-        
+        px = ak.sum(jets.pt * np.cos(jets.phi), axis=-1)
+        py = ak.sum(jets.pt * np.sin(jets.phi), axis=-1)
+
+        HT_miss = np.sqrt(px**2 + py**2)
+
         return {
-            "HT_valid" : HT_valid,
-            "HT_miss_valid" : HT_miss_valid,
-            "HT" : HT,
-            "HT_miss" : HT_miss
+            "HT_valid": HT_valid,
+            "HT_miss_valid": HT_miss_valid,
+            "HT": HT,
+            "HT_miss": HT_miss
         }
-    
+        
     def delta_phi(self, phi1_ak, phi2_ak):
         phi1 = np.array(phi1_ak)
         phi2 = np.array(phi2_ak)
@@ -529,22 +474,30 @@ class Processor(pepper.ProcessorBasicPhysics):
     
     @zero_handler
     def mt_jets(self, data):
-        jet1 = data["Jet_select"][:,0]
-        jet2 = data["Jet_select"][:,1]
-        
-        MET = data["MET"]
-        one_min_cs = 1.0 - np.cos(self.delta_phi(jet1.phi, MET.phi))
-        prod = 2*jet1.pt*MET.pt
-        mt_j1 = np.sqrt( prod * one_min_cs)
-        
-        one_min_cs = 1.0 - np.cos(self.delta_phi(jet2.phi, MET.phi))
-        prod = 2*jet2.pt*MET.pt
-        mt_j2 = np.sqrt( prod * one_min_cs) 
-    
+
+        jet1 = data["Jet_select"][:, 0]
+        jet2 = data["Jet_select"][:, 1]
+
+        met = data["PFMET"]
+
+        # Transverse mass of leading jet and MET
+        delta_phi1 = self.delta_phi(jet1.phi, met.phi)
+
+        mt_j1 = np.sqrt(
+            2 * jet1.pt * met.pt * (1.0 - np.cos(delta_phi1))
+        )
+
+        # Transverse mass of subleading jet and MET
+        delta_phi2 = self.delta_phi(jet2.phi, met.phi)
+
+        mt_j2 = np.sqrt(
+            2 * jet2.pt * met.pt * (1.0 - np.cos(delta_phi2))
+        )
+
         return {
-            "mt_jet1" : mt_j1,
-            "mt_jet2" : mt_j2,
-            "mt_sum" : mt_j1 + mt_j2
+            "mt_jet1": mt_j1,
+            "mt_jet2": mt_j2,
+            "mt_sum": mt_j1 + mt_j2
         }
         
     @zero_handler
@@ -553,7 +506,16 @@ class Processor(pepper.ProcessorBasicPhysics):
                               data["Jet_select"][:,1].phi)
     @zero_handler
     def dr_jet1_jet2(self, data):
-        return data["Jet_select"][:,0].delta_r(data["Jet_select"][:,1])
+
+        jets = data["Jet_select"]
+
+        jet1 = jets[:, 0]
+        jet2 = jets[:, 1]
+
+        delta_eta = jet1.eta - jet2.eta
+        delta_phi = self.delta_phi(jet1.phi, jet2.phi)
+
+        return np.sqrt(delta_eta**2 + delta_phi**2)
     
     @zero_handler
     def MET_cut(self, data):
@@ -592,13 +554,18 @@ class Processor(pepper.ProcessorBasicPhysics):
         return ak.num(data["Electron"]) == 0
 
     @zero_handler
-    def jet_selection(self, data, from_collection="Jet"):
+    def jet_basis(self,data):
+        jets = data["JetCHS"]
+        return jets
+    
+    @zero_handler
+    def jet_selection(self, data, from_collection="JetCHS"):
         jets = data[from_collection]
         jets = jets[(
             (self.config["jet_eta_min"] < jets.eta)
             & (jets.eta < self.config["jet_eta_max"])
             & (self.config["jet_pt_min"] < jets.pt)
-            & (jets.jetId >= self.config["jet_jetId"] )
+            # & (jets.jetId >= self.config["jet_jetId"] )
             )]
         return jets
     
@@ -609,7 +576,9 @@ class Processor(pepper.ProcessorBasicPhysics):
     @zero_handler
     def has_two_jets(self, data):
         jets = data["Jet_select"]
-        return ak.num(jets) == 2
+        n = ak.num(jets)
+        logger.info(f"n jetsv: events={len(data)}, >=2 jets: {ak.sum(n>=2)}")
+        return n >= 2
     
     @zero_handler
     def has_small_dxy(self, data):
@@ -632,70 +601,98 @@ class Processor(pepper.ProcessorBasicPhysics):
 
     @zero_handler
     def pfcand_valid(self, data):
-        pfCands = data["PFCandidate"]
+        pfCands = data["PFCand"]
         is_good = (
             (pfCands.pt > self.config["pfcand_pt"])
             & (pfCands.eta < self.config["pfcand_eta_max"])
             & (pfCands.eta > self.config["pfcand_eta_min"])
-            & (pfCands[self.config["track"]])
+            # & (pfCands[self.config["track"]])
         )
         pfCands_selected = pfCands[is_good]
         sort_idx = ak.argsort(pfCands_selected.pt, axis=-1, ascending=False)
         return pfCands_selected[sort_idx]
-    
+
     @zero_handler
-    def match_jet_to_pfcand(self, data, jet_name = None, pf_name = None, dR = 0.4):
-        '''
-        This function match all particle-flow candidates to every jet in the [jet_name] collection
-        (function is alternative to match_nearest, but works for multydim case and expected to be much slower)
-        '''
+    def match_jet_to_pfcand(self, data, jet_name=None, pf_name=None, dR=0.4):
         jets = data[jet_name]
         pfcands = data[pf_name]
-        # here return_combinations=True is needed to return _pfcands_unzipped
-        # which broadcasted in the way to duplicate pdcands list per every jet in event
-        (dr, (_, _pfcands_unzipped)) = jets.metric_table(pfcands, metric=coffea.nanoevents.methods.vector.LorentzVector.delta_r, return_combinations=True)
-        pfcands_matched = _pfcands_unzipped[(dr < dR)]
-        return pfcands_matched
+
+        # shape: events x jets x pfcands
+        pf_b = pfcands[:, None, :]                       # broadcast over jets
+        deta = jets.eta[:, :, None] - pf_b.eta
+        dphi = (jets.phi[:, :, None] - pf_b.phi + np.pi) % (2 * np.pi) - np.pi
+        dr = np.sqrt(deta**2 + dphi**2)
+
+        # pfcands duplicated per jet, then masked by dR
+        pf_per_jet = ak.broadcast_arrays(jets.eta[:, :, None], pf_b)[1]
+        return pf_per_jet[dr < dR]
     
     @zero_handler
     def get_matched_pfCands(self, data, match_object, dR=0.4):
         pfCands = self.match_jet_to_pfcand(data, jet_name=match_object, pf_name="PfCands", dR=dR)
         pfCands_lead = ak.firsts(pfCands, axis=-1)
-        pfCands_lead["dxysig"] = pfCands_lead.dxy / pfCands_lead.dxyError
-        pfCands_lead["ip3d"] = np.sqrt(pfCands_lead.dxy**2 + pfCands_lead.dz**2)
-        pfCands_lead["dxy_weight"] = ak.mean(pfCands.dxy, weight=pfCands.pt, axis=-1)
-        pfCands_lead["dxysig_weight"] = ak.mean(pfCands.dxy / pfCands.dxyError, weight=pfCands.pt, axis=-1)
+        # pfCands_lead["dxysig"] = pfCands_lead.dxy / pfCands_lead.dxyError
+        # pfCands_lead["ip3d"] = np.sqrt(pfCands_lead.dxy**2 + pfCands_lead.dz**2)
+        # pfCands_lead["dxy_weight"] = ak.mean(pfCands.dxy, weight=pfCands.pt, axis=-1)
+        # pfCands_lead["dxysig_weight"] = ak.mean(pfCands.dxy / pfCands.dxyError, weight=pfCands.pt, axis=-1)
         return pfCands_lead
     
     @zero_handler
     def set_jet_dxy(self, data):
         jets = data["Jet_select"]
-        # Mask jets with dxy nan (no selected pfcands matching)
-        bad_jets = ak.is_none(data["Jet_lead_pfcand"].dxy, axis=-1)
-        jets = ak.mask(jets, ~bad_jets) # mask bad jets to keep coorect shape
-        lead_pf = data["Jet_lead_pfcand"]
-        jets["dz"] = np.abs(lead_pf.dz)
-        jets["dxy"] = np.abs(lead_pf.dxy)
-        jets["dxy_weight"] = np.abs(lead_pf.dxy_weight)
-        jets["dxysig"] = np.abs(lead_pf.dxysig)
-        jets["dxysig_weight"] = np.abs(lead_pf.dxysig_weight)
-        jets["ip3d"] = lead_pf.ip3d
-        #### Extra variables for the jet dxy cut study #### begin
-        jets["dz_err"] = np.abs(lead_pf.dzError)
-        jets["dxy_err"] = np.abs(lead_pf.dxyError)
-        jets["vxy"] = np.sqrt(lead_pf.vx**2 + lead_pf.vy**2)
-        jets["vz"] = np.abs(lead_pf.vz)
-        jets["fromPV"] = lead_pf.fromPV
-        jets["lostInnerHits"] = lead_pf.lostInnerHits
-        #### end
-        jets = jets[~bad_jets] # remove bad jets
-        jets = jets[jets.dxy >= self.config["jet_dxy_min"]]
+        # JetCHS already contains these quantities
+        jets["dxy"] = np.abs(jets.dxy)
+        jets["dz"] = np.abs(jets.dz)
+        jets["dxy_err"] = np.abs(jets.dxyerror)
+        jets["dz_err"] = np.abs(jets.dzerror)
+        jets["dxysig"] = jets.dxy / jets.dxy_err
+
+        jets = jets[
+            jets.dxy >= self.config["jet_dxy_min"]
+        ]
+        # # Mask jets with dxy nan (no selected pfcands matching)
+        # bad_jets = ak.is_none(data["Jet_lead_pfcand"].dxy, axis=-1)
+        # jets = ak.mask(jets, ~bad_jets) # mask bad jets to keep coorect shape
+        # lead_pf = data["Jet_lead_pfcand"]
+        # jets["dz"] = np.abs(lead_pf.dz)
+        # jets["dxy"] = np.abs(lead_pf.dxy)
+        # jets["dxy_weight"] = np.abs(lead_pf.dxy_weight)
+        # jets["dxysig"] = np.abs(lead_pf.dxysig)
+        # jets["dxysig_weight"] = np.abs(lead_pf.dxysig_weight)
+        # jets["ip3d"] = lead_pf.ip3d
+        # #### Extra variables for the jet dxy cut study #### begin
+        # jets["dz_err"] = np.abs(lead_pf.dzError)
+        # jets["dxy_err"] = np.abs(lead_pf.dxyError)
+        # jets["vxy"] = np.sqrt(lead_pf.vx**2 + lead_pf.vy**2)
+        # jets["vz"] = np.abs(lead_pf.vz)
+        # jets["fromPV"] = lead_pf.fromPV
+        # jets["lostInnerHits"] = lead_pf.lostInnerHits
+        # #### end
+        # jets = jets[~bad_jets] # remove bad jets
+        # jets = jets[jets.dxy >= self.config["jet_dxy_min"]]
         return jets
     
     @zero_handler
     def sum_jj(self, data):
-        return data['Jet_select'][:,0].add(data['Jet_select'][:,1])
-    
+
+        jets = data['Jet_select']
+
+        j1 = jets[:, 0]
+        j2 = jets[:, 1]
+
+        mt1 = np.sqrt(j1.mass**2 + j1.pt**2)
+        mt2 = np.sqrt(j2.mass**2 + j2.pt**2)
+
+        mjj2 = (
+            j1.mass**2 + j2.mass**2
+            + 2 * (
+                mt1 * mt2 * np.cosh(j1.eta - j2.eta)
+                - j1.pt * j2.pt * np.cos(j1.phi - j2.phi)
+            )
+        )
+
+        return np.sqrt(np.maximum(mjj2, 0))
+
     @zero_handler
     def dphi_min_cut(self, data):
         return abs(data["dphi_jet1_jet2"]) > self.config["dphi_j1j2"]
@@ -938,7 +935,7 @@ class Processor(pepper.ProcessorBasicPhysics):
     def binning_schema(self, data):
         jets = data["Jet_select"]
         # declear variables for binning
-        met = data["MET"].pt
+        met = data["PFMET"].pt
         jet2_pt = jets[:,1].pt
         mt2 = data["mt2_j1_j2_MET"]
         # create empty binning

@@ -1,0 +1,17 @@
+{
+    "SMS-TStauStau_MStau-500_ctau-1mm_mLSP-1": {
+        "all": {
+            "BeforeCuts": 374.0,
+            "Trigger": 268.0,
+            "MET filters": 268.0,
+            "PV": 268.0,
+            "muon_veto": 229.0,
+            "elec_veto": 183.0,
+            "two_loose_jets": 182.0,
+            "dphi_min_cut": 163.0,
+            "signal_eff_sfs": 163.0,
+            "two_loose_jets_final": 163.0,
+            "ht_cut": 156.0
+        }
+    }
+}

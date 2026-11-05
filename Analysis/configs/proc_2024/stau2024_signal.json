@@ -3,9 +3,9 @@
     "year": "2024",
     "file_mode": "local",
     "xrootddomain": "xrootd-cms.infn.it",
-    "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
-    "datadir": "configs/data_UL/2024",
-    "store": "/pnfs/desy.de/cms/tier2/store/user/sobhatta/LongLivedStaus/NanoAOD",
+    // "bad_file_paths": "$CONFDIR/../nano_v11_bad-pnfs-files.json",
+    // "datadir": "configs/data_UL/2024",
+    "store": "/pnfs/desy.de/cms/tier2/store/user/svashish/LLSTauProduction_RUN3/",
     "rng_seed_file": "$CONFDIR/seed.txt",
     "compute_systematics": true,
     // "lumimask": "$CONFDIR/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt",
@@ -23,9 +23,9 @@
         //     "$STOREDIR/MET/crab_MET_2018C_UL/230415_105814/*/*.root",
         //     "$STOREDIR/MET/crab_MET_2018D_UL/230414_182515/*/*.root"
         // ]
-        "mc_datasets" : {
-            // Dataset: /DYJetsToLL_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/RunIII2024Summer24NanoAODv15-Pilot2024wmLHEGS_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM 
-        }
+        // "mc_datasets" : {
+        //     "Dataset: /DYJetsToLL_M-50_TuneCP5_13p6TeV-madgraphMLM-pythia8/RunIII2024Summer24NanoAODv15-Pilot2024wmLHEGS_150X_mcRun3_2024_realistic_v2-v2/NANOAODSIM"
+        // }
     },
     "data_eras": {
         "2024C": [379412, 380252],
@@ -47,9 +47,21 @@
         "320900" : "MC_Gaussian"
     },
     // need to update this:
+// /SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1mm_v1/*/*/*/*
+    // SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau10mm_v1/SUS-Run3Summer2024-stau500_lsp1_ctau10mm/NANOAOD/260916_103912/0000/ .
+
     "mc_datasets": {
         // all signal
-        "SMS-TStauStau_MStau-100_ctau-0p01mm_mLSP-1": ["$STOREDIR/Stau_2018UL/SMS-TStauStau_MStau-100_ctau-0p01mm_mLSP-1_TuneCP5_13TeV-madgraphMLM-pythia8/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-10mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau10mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-100mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau100mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-1000mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau1000mm_v3/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-700_ctau-10m_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau700_lsp1_ctau10m_v3/*/*/*/*/*.root"],
+
+        "SMS-TStauStau_MStau-500_ctau-1mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-10mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau10mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-100mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau100mm_v1/*/*/*/*/*.root"],
+        // "SMS-TStauStau_MStau-500_ctau-1000mm_mLSP-1": ["$STOREDIR/SUS-RunIIISummer2024_EXONANO_stau500_lsp1_ctau1000mm_v1/*/*/*/*/*.root"],
+
     },
 
     // need to change this:
@@ -89,13 +101,16 @@
     "dataset_for_systematics": {
     },
     "dataset_trigger_order": [
-        "DATA_MET"
+        "DATA_MET",
+        "Displaced_ditau"
     ],
     "dataset_trigger_map": {
         "DATA_MET": [
-            "HLT_PFMET120_PFMHT120_IDTight",
-            "HLT_PFMET130_PFMHT130_IDTight",
-            "HLT_PFMET140_PFMHT140_IDTight"
+            "HLT_PFMET120_PFMHT120_IDTight"
+        ],
+        "Displaced_ditau": [
+            "HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1_noDxy",
+            // "HLT_DoubleMediumChargedIsoDisplacedPFTauHPS32_Trk1_eta2p1"
         ]
     },
 
@@ -157,20 +172,20 @@
     "elec_veto_eta_min"   : -2.4,
     "elec_veto_eta_max"   :  2.4,
     "elec_veto"           : "convVeto",
-    "elec_ID"             : "mvaIso_WPL",
+    "elec_ID"             : "mvaIso_WP80",
     
     // reco Tau Jet:
     "jet_pt_min"   :  30,
     "jet_eta_min"  : -2.1,
     "jet_eta_max"  :  2.1,
-    "jet_jetId"    :  6, // tight lepton veto
+    "jet_jetId"    :  6, // tight lepton veto -> is this Jet_genJetIdx
     "jet_dxy_min"  :  0.2, // cm
     
     // pfCand selection:
     "pfcand_pt"         : 1.0,
     "pfcand_eta_min"    : -2.4,
     "pfcand_eta_max"    : 2.4,
-    "track"             : "hasTrackDetails",
+    // "track"             : "hasTrackDetails",
 
     // MET cut
     "MET_cut"   : 120,
@@ -185,12 +200,12 @@
 
     // "hists": "$CONFDIR/stau2018_signal_stau_hist.json",
     // "hists": "$CONFDIR/stau2018_signal_hist.json",
-    "hists": "$CONFDIR/../hists_configs/stau2018_signal_hist_unc.json",
+    "hists": "$CONFDIR/../hists_configs/stau2024_signal_testing.json"
     
     // There are many histograms in output data, for prediction we need only one 
     // the load on histograms transfer one of the biggest bottleneck in the code
-    "cuts_to_histogram" : [
-            "two_loose_jets_final",
-            "ht_cut"
-        ]
+    // "cuts_to_histogram" : [
+    //         "two_loose_jets_final",
+    //         "ht_cut"
+    //     ]
 }
