@@ -135,8 +135,8 @@ class Processor(BaseProcessor):
             selector.set_multiple_columns(partial(self.predict_yield, weight=selector.systematics["weight"]))
 
         selector.add_cut("atleast_two_loose_jets_final", self.has_two_jets)
-        selector.set_column("Jet_select", self.gettight_jets)
-        selector.add_cut("two_tight_jets", self.has_two_jets)
+        # selector.set_column("Jet_select", self.gettight_jets)
+        # selector.add_cut("two_tight_jets", self.has_two_jets)
 
         # selector.add_cut("ht_cut", self.ht_cut)
 

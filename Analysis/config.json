@@ -21,10 +21,11 @@
             // "$STOREDIR/MET/crab_MET_2018A_UL/230415_105803/*/*.root",
         // ]
         "Muon": [
-            "/Muon0/Run2024C-MINIv6NANOv15-v1/NANOAOD",
+            // "/Muon0/Run2024C-MINIv6NANOv15-v1/NANOAOD",
             // "/Muon0/Run2024C-MINIv6NANOv15-v1/MINIAOD"
             // "/Muon0/Run2024C-2024CDEReprocessing-v1/AOD",
             // "/data/dust/user/vashisht/CMSSW_17_0_0_pre3/src/Run3_LLStaus/Analysis/muon0_files.txt",
+            "$STOREDIR/Data_EXONanoAOD/*/*/*/*/*.root"
         ]
     },
     "data_eras": {
@@ -141,7 +142,7 @@
         "fake_rate_jet_dxy_pt",
         ["jet_pt", "jet_dxy"]
     ],
-    "predict_yield" : true,
+    "predict_yield" : false,
 
     "propagate_eff_factors" : true,
     "signal_eff_factors": { // signal efficiency factors are set to 15% per tight jet

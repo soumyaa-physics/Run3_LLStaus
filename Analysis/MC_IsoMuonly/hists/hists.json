@@ -1,0 +1,71 @@
+{
+    "key_fields": [
+        "cut",
+        "hist"
+    ],
+    "content": [
+        [
+            [
+                "atleast_two_loose_jets_final",
+                "PFMET_pt"
+            ],
+            [
+                "two_tight_jets",
+                "min_MET_MHT"
+            ],
+            [
+                "atleast_two_loose_jets_final",
+                "min_MET_MHT"
+            ],
+            [
+                "two_tight_jets",
+                "HT_miss_valid"
+            ],
+            [
+                "atleast_two_loose_jets_final",
+                "HT_miss_valid"
+            ],
+            [
+                "atleast_two_loose_jets_final",
+                "HT_valid"
+            ],
+            [
+                "two_tight_jets",
+                "HT_valid"
+            ],
+            [
+                "two_tight_jets",
+                "PFMET_pt"
+            ]
+        ],
+        [
+            "Cut_013_atleast_two_loose_jets_final_PFMET_pt.root",
+            "Cut_014_two_tight_jets_min_MET_MHT.root",
+            "Cut_013_atleast_two_loose_jets_final_min_MET_MHT.root",
+            "Cut_014_two_tight_jets_HT_miss_valid.root",
+            "Cut_013_atleast_two_loose_jets_final_HT_miss_valid.root",
+            "Cut_013_atleast_two_loose_jets_final_HT_valid.root",
+            "Cut_014_two_tight_jets_HT_valid.root",
+            "Cut_014_two_tight_jets_PFMET_pt.root"
+        ]
+    ],
+    "userdata": {
+        "cuts": [
+            "BeforeCuts",
+            "MET",
+            "Trigger",
+            "MET filters",
+            "PV",
+            "single_muon_tag",
+            "Lead_pass_trigger",
+            "loose_muon_veto",
+            "loose_electron_veto",
+            "dy_gen_sfs",
+            "atleast_two_loose_jets",
+            "dphi_min_cut",
+            "signal_eff_sfs",
+            "atleast_two_loose_jets_final",
+            "two_tight_jets"
+        ]
+    }
+}

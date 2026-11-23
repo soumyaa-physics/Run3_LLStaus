@@ -284,7 +284,7 @@ class Processor(BaseProcessor):
     def jet_selection(self, data):
         jets = data["JetCHS"]
 
-        # Apply jet kinematic selection
+        # Apply jet kinematic selection, pass as argument
         jets = jets[
             (self.config["jet_eta_min"] < jets.eta)
             & (jets.eta < self.config["jet_eta_max"])
@@ -292,7 +292,7 @@ class Processor(BaseProcessor):
             # & (jets.jetId >= self.config["jet_jetId"])
         ]
 
-        muons = data["Muon_tag"]
+        muons = data["Muon_tag"] 
 
         # Calculate delta R between every jet and every muon
         mu_b = muons[:, None, :]
@@ -314,7 +314,7 @@ class Processor(BaseProcessor):
 
     @zero_handler
     def jet_basis(self, data):
-        jets = data["JetCHS"]
+        jets = data["Jet_select"]
         n_before = ak.num(jets, axis=1)
         logger.info(
             f"Selecting CHS jets: "

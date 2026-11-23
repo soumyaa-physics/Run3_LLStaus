@@ -7,29 +7,38 @@ from scipy.stats import beta
 # ROOT files
 # --------------------------------------------------
 
-D_DEN = "withMETcut_MHT_morestats/muon_trigger_study/hists/"      # only isomu24 trigger
-D_NUM = "withMETcut_MHT_morestats/muon_trigger_withMET/hists/"    # with PFMET120 trigger
+D_DEN = "data_IsoMuonly/hists/"      # only isomu24 trigger
+D_NUM = "data_IsoMuonandpfmet/hists/"          # with PFMET120 trigger
 
-DEN = D_DEN + "Cut_014_two_tight_jets_min_MET_MHT.root"
-NUM = D_NUM + "Cut_015_two_tight_jets_min_MET_MHT.root"
+DEN = D_DEN + "Cut_012_atleast_two_loose_jets_final_min_MET_MHT.root"
+NUM = D_NUM + "Cut_013_atleast_two_loose_jets_final_min_MET_MHT.root"
+
+# groups = {
+#     "Signal (all stau samples)": [
+#         f"SMS-TStauStau_MStau-500_ctau-{ctau}mm_mLSP-1"
+#         # for mass in (400, 500, 600)
+#         for ctau in (1, 10, 100)
+#     ],
+
+#     "W+jets": [
+#         f"WtoLNu-4Jets_Bin-{i}J"
+#         for i in ( 3, 4)
+#     ],
+# }
+
+
+# --------------------------------------------------
+# Datasets (data only)
+# --------------------------------------------------
 
 groups = {
-    "Signal (all stau samples)": [
-        f"SMS-TStauStau_MStau-{mass}_ctau-{ctau}mm_mLSP-1"
-        for mass in (400, 500, 600)
-        for ctau in (1, 10, 100)
-    ],
-
-    "W+jets": [
-        f"WtoLNu-4Jets_Bin-{i}J"
-        for i in ( 3, 4)
-    ],
+    "Muon": ["Muon"],
 }
 
 # Plots to produce: (x-axis max in GeV, output filename)
 PLOTS = [
-    (1000, "stats_tjets_minMHT_MET_turnon_0-1000.png"),
-    (2000, "stats_tjets_minMHT_MET_turnon_0-2000.png"),
+    (1000, "data_minMHT_MET_turnon_0-1000.png"),
+    (2000, "data_minMHT_MET_turnon_0-2000.png"),
 ]
 
 # Set to True to print per-bin numbers for debugging
@@ -51,8 +60,9 @@ def get(path, datasets):
         h_var = h.variances(flow=False)
         h_edges = h.axis().edges()
 
+        # Data: unweighted counts. If no sumw2 is stored, use Poisson (var = N).
         if h_var is None:
-            raise ValueError(f"No sumw2 variances found for {hist_path}")
+            h_var = h_vals.copy()
 
         if vals is None:
             vals = h_vals.copy()
@@ -91,7 +101,7 @@ for label, datasets in groups.items():
     )
     eff = np.clip(eff, 0, 1)
 
-    # Effective number of events (handles weighted samples)
+    # Effective number of events (equals n for unweighted data)
     n_eff = np.divide(
         n**2, n_var,
         out=np.zeros_like(n, dtype=float),
@@ -174,13 +184,14 @@ def make_plot(xmax, outname):
                 markersize=8,
                 markeredgewidth=2,
                 linestyle="none",
-                label=None if empty_labeled else "Empty bin (no MC events)",
+                label=None if empty_labeled else "Empty bin (no events)",
             )
             empty_labeled = True
 
     plt.axhline(1, linestyle="--", color="gray")
-    plt.axhline(0.85, linestyle="--", color="red", label="85% efficiency")
+    # plt.axhline(0.85, linestyle="--", color="red", label="85% efficiency")
     plt.axhline(0.90, linestyle="--", color="blue", label="90% efficiency")
+    plt.axhline(0.95, linestyle="--", color="green", label="95% efficiency")
 
     plt.xlabel("Minimum of MET and MHT [GeV]")
     plt.ylabel("Trigger efficiency")
