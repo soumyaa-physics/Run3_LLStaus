@@ -83,7 +83,7 @@ class Processor(BaseProcessor):
         selector.add_cut("MET", self.MET_cut)
         self.add_trigger(selector, dsname, is_mc)
         self.add_quality_cuts(selector, is_mc)
-        selector.add_cut("MET_trigger_pass", self.met_trigger_pass)
+        selector.add_cut("mu_trigger_pass", self.mu_trigger_pass)
         # one tight tag muon
         selector.set_column("Muon_tag", self.muons_tag)
         selector.add_cut("single_muon_tag", self.single_muon_tag_cut)
@@ -135,36 +135,24 @@ class Processor(BaseProcessor):
             selector.set_multiple_columns(partial(self.predict_yield, weight=selector.systematics["weight"]))
 
         selector.add_cut("atleast_two_loose_jets_final", self.has_two_jets)
-        # selector.set_column("Jet_select", self.gettight_jets)
-        # selector.add_cut("two_tight_jets", self.has_two_jets)
+        selector.set_column("Jet_selPF", self.jet_selection_PFlow)
+        selector.add_cut("atleast_one_pf_jet", self.has_pflow_jet)
+
+        assert(len(self.config["met_trigger_paths"]) == 1)
+        trigger_name = self.config["met_trigger_paths"][0].removeprefix("HLT_")
+        selector.add_cut("met_trigger_pass", partial(self.met_trigger_pass,trigger=trigger_name))
+        selector.set_column("Jet_select", self.gettight_jets)
+        selector.add_cut("two_tight_jets", self.has_two_jets)
 
         # selector.add_cut("ht_cut", self.ht_cut)
 
     @zero_handler
-    def met_trigger_pass(self, data):
-        iso_mu24 = data["HLT"]["IsoMu24"]
-        met_pass = None
-        for path in self.config["met_trigger_paths"]:
-            trigger_name = path.removeprefix("HLT_")
-            bit = data["HLT"][trigger_name]
+    def met_trigger_pass(self, data, trigger):
+        return data["HLT"][trigger]
 
-            logger.info(
-                f"Trigger {trigger_name}: {ak.sum(bit)} events pass"
-            )
-
-            met_pass = bit if met_pass is None else (met_pass | bit)
-
-        # Require BOTH IsoMu24 and the MET trigger OR
-        passed = iso_mu24 & met_pass
-
-        logger.info(
-            f"IsoMu24: {ak.sum(iso_mu24)} events pass"
-        )
-        logger.info(
-            f"Combined IsoMu24 AND MET trigger OR: {ak.sum(passed)} events pass"
-        )
-
-        return passed
+    @zero_handler
+    def mu_trigger_pass(self, data):
+        return  data["HLT"]["IsoMu24"]
 
     @zero_handler
     def muons_tag(self, data):
@@ -313,11 +301,54 @@ class Processor(BaseProcessor):
         return isoJets
 
     @zero_handler
+    def jet_selection_PFlow(self, data):
+        jets = data["Jet"]
+
+        # Apply jet kinematic selection
+        jets = jets[
+            (self.config["jet_eta_min"] < jets.eta)
+            & (jets.eta < self.config["jet_eta_max"])
+            & (self.config["jet_pt_min"] < jets.pt)
+            # & (jets.jetId >= self.config["jet_jetId"])
+        ]
+
+        muons = data["Muon_tag"]
+
+        # Calculate delta R between every jet and every muon
+        mu_b = muons[:, None, :]
+
+        deta = jets.eta[:, :, None] - mu_b.eta
+        dphi = (jets.phi[:, :, None] - mu_b.phi + np.pi) % (2 * np.pi) - np.pi
+
+        dR = np.sqrt(deta**2 + dphi**2)
+
+        # Keep jets with NO muon within the veto cone
+        has_muon_match = ak.any(
+            dR < self.config["tag_muon_veto_dR"],
+            axis=-1
+        )
+
+        isoJets = jets[~has_muon_match]
+
+        return isoJets
+
+    @zero_handler
     def jet_basis(self, data):
         jets = data["JetCHS"]
         n_before = ak.num(jets, axis=1)
         logger.info(
             f"Selecting CHS jets: "
+            f"exactly 2 = {ak.sum(n_before == 2)}, "
+            f">=2 = {ak.sum(n_before >= 2)}"
+        )
+        return jets
+
+    @zero_handler
+    def jet_basis_PFlow(self, data):
+        jets = data["Jet"]
+        n_before = ak.num(jets, axis=1)
+        logger.info(
+            f"Selecting PF jets: "
             f"exactly 2 = {ak.sum(n_before == 2)}, "
             f">=2 = {ak.sum(n_before >= 2)}"
         )
@@ -364,6 +395,12 @@ class Processor(BaseProcessor):
         n = ak.num(jets)
         logger.info(f"n jets: events={len(data)}, >=2 jets: {ak.sum(n >= 2)}")
         return n >= 2
+    @zero_handler
+    def has_pflow_jet(self, data):
+        jets = data["Jet_selPF"]
+        n = ak.num(jets)
+        logger.info(f"n jets: events={len(data)}, >=2 jets: {ak.sum(n >= 2)}")
+        return n > 0
     
     @zero_handler
     def gettight_jets(self, data):

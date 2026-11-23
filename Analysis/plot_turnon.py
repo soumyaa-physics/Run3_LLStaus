@@ -2,43 +2,36 @@ import numpy as np
 import uproot
 import matplotlib.pyplot as plt
 from scipy.stats import beta
-
+import os 
+from pathlib import Path
 # --------------------------------------------------
 # ROOT files
 # --------------------------------------------------
 
-D_DEN = "data_IsoMuonly/hists/"      # only isomu24 trigger
-D_NUM = "data_IsoMuonandpfmet/hists/"          # with PFMET120 trigger
+INDIR = Path("maxTestRun/hists/")      # only isomu24 trigger
 
-DEN = D_DEN + "Cut_012_atleast_two_loose_jets_final_min_MET_MHT.root"
-NUM = D_NUM + "Cut_013_atleast_two_loose_jets_final_min_MET_MHT.root"
-
-# groups = {
-#     "Signal (all stau samples)": [
-#         f"SMS-TStauStau_MStau-500_ctau-{ctau}mm_mLSP-1"
-#         # for mass in (400, 500, 600)
-#         for ctau in (1, 10, 100)
-#     ],
-
-#     "W+jets": [
-#         f"WtoLNu-4Jets_Bin-{i}J"
-#         for i in ( 3, 4)
-#     ],
-# }
-
-
-# --------------------------------------------------
-# Datasets (data only)
-# --------------------------------------------------
+DEN = INDIR / "Cut_014_atleast_one_pf_jet_PFMET_pt.root"
+NUM = INDIR / "Cut_015_met_trigger_pass_PFMET_pt.root"
 
 groups = {
-    "Muon": ["Muon"],
+    "Signal (all stau samples)": [
+        f"SMS-TStauStau_MStau-{mass}_ctau-{ctau}mm_mLSP-1"
+        for mass in [500]
+        for ctau in (1, 10, 100)
+    ],
+
+    "W+jets": [
+        f"WtoLNu-4Jets_Bin-{i}J"
+        for i in ( 3, 4)
+    ],
 }
 
 # Plots to produce: (x-axis max in GeV, output filename)
 PLOTS = [
-    (1000, "data_minMHT_MET_turnon_0-1000.png"),
-    (2000, "data_minMHT_MET_turnon_0-2000.png"),
+    (2000, "min_MET_MHT", "minMHT_MET_turnon_0-2000.png"),
+    (2000, "PFMET_pt", "PFMET_pt_turnon_0-2000.png"),
+    (2000, "HT_miss_valid", "HT_miss_turnon_0-2000.png"),
+    (2000, "HT_valid", "HT_turnon_0-2000.png"),
 ]
 
 # Set to True to print per-bin numbers for debugging
@@ -53,7 +46,7 @@ def get(path, datasets):
     edges = None
 
     for ds in datasets:
-        hist_path = f"{ds}/nominal/hist"
+        hist_path = f"{ds}/hist"
         h = f[hist_path]
 
         h_vals = h.values(flow=False)
@@ -83,72 +76,11 @@ def get(path, datasets):
 # Calculate efficiency for each group (done once)
 # --------------------------------------------------
 
-results = {}
-
-for label, datasets in groups.items():
-    # n: denominator
-    # k: numerator
-    n, n_var, edges = get(DEN, datasets)
-    k, k_var, edges_num = get(NUM, datasets)
-
-    if not np.allclose(edges, edges_num):
-        raise ValueError("Numerator and denominator binning differ!")
-
-    eff = np.divide(
-        k, n,
-        out=np.zeros_like(k, dtype=float),
-        where=n > 0
-    )
-    eff = np.clip(eff, 0, 1)
-
-    # Effective number of events (equals n for unweighted data)
-    n_eff = np.divide(
-        n**2, n_var,
-        out=np.zeros_like(n, dtype=float),
-        where=n_var > 0
-    )
-
-    # Enforce 0 <= k_eff <= n_eff (avoids floating-point overshoot)
-    k_eff = np.clip(eff * n_eff, 0, n_eff)
-
-    lo = np.zeros_like(eff)
-    hi = np.ones_like(eff)
-
-    # Bins with essentially no statistics are treated as "empty"
-    valid = n_eff >= 1
-
-    kv, nv = k_eff[valid], n_eff[valid]
-    lo[valid] = beta.ppf(0.16, kv, nv - kv + 1)
-    hi[valid] = beta.ppf(0.84, kv + 1, nv - kv)
-
-    # Edge cases (use tolerance, not ==)
-    lo[valid & (k_eff < 1e-9)] = 0
-    hi[valid & (k_eff > n_eff - 1e-9)] = 1
-
-    if DEBUG:
-        print(f"\n=== {label} ===")
-        for lo_e, hi_e, nn, kk, ne in zip(edges[:-1], edges[1:], n, k, n_eff):
-            e = kk / nn if nn > 0 else 0
-            flag = "  <-- k>n!" if kk > nn * (1 + 1e-9) else ""
-            empty = "  [EMPTY]" if ne < 1 else ""
-            print(f"{lo_e:6.0f}-{hi_e:6.0f}  n={nn:10.3g}  k={kk:10.3g}  "
-                  f"n_eff={ne:8.2f}  eff={e:.3f}{flag}{empty}")
-
-    results[label] = {
-        "x": 0.5 * (edges[1:] + edges[:-1]),
-        "xerr": 0.5 * np.diff(edges),
-        "eff": eff,
-        "lo": lo,
-        "hi": hi,
-        "valid": valid,
-    }
-
-
 # --------------------------------------------------
 # Plotting
 # --------------------------------------------------
 
-def make_plot(xmax, outname):
+def make_plot(xmax, results, outname):
     plt.figure(figsize=(8, 6))
 
     empty_labeled = False
@@ -206,7 +138,76 @@ def make_plot(xmax, outname):
     plt.savefig(outname, dpi=300)
 
 
-for xmax, outname in PLOTS:
-    make_plot(xmax, outname)
+def doPlots(xrange, var):
+        
+    DEN = f"{INDIR}/Cut_014_atleast_one_pf_jet_{var}.root"
+    NUM = f"{INDIR}/Cut_015_met_trigger_pass_{var}.root"
+        
+    results = {}
 
-plt.show()
+    for label, datasets in groups.items():
+        # n: denominator
+        # k: numerator
+        n, n_var, edges = get(DEN, datasets)
+        k, k_var, edges_num = get(NUM, datasets)
+
+        if not np.allclose(edges, edges_num):
+            raise ValueError("Numerator and denominator binning differ!")
+
+        eff = np.divide(
+            k, n,
+            out=np.zeros_like(k, dtype=float),
+            where=n > 0
+        )
+        eff = np.clip(eff, 0, 1)
+
+        # Effective number of events (handles weighted samples)
+        n_eff = np.divide(
+            n**2, n_var,
+            out=np.zeros_like(n, dtype=float),
+            where=n_var > 0
+        )
+
+        # Enforce 0 <= k_eff <= n_eff (avoids floating-point overshoot)
+        k_eff = np.clip(eff * n_eff, 0, n_eff)
+
+        lo = np.zeros_like(eff)
+        hi = np.ones_like(eff)
+
+        # Bins with essentially no statistics are treated as "empty"
+        valid = n_eff >= 1
+
+        kv, nv = k_eff[valid], n_eff[valid]
+        lo[valid] = beta.ppf(0.16, kv, nv - kv + 1)
+        hi[valid] = beta.ppf(0.84, kv + 1, nv - kv)
+
+        # Edge cases (use tolerance, not ==)
+        lo[valid & (k_eff < 1e-9)] = 0
+        hi[valid & (k_eff > n_eff - 1e-9)] = 1
+
+        if DEBUG:
+            print(f"\n=== {label} ===")
+            for lo_e, hi_e, nn, kk, ne in zip(edges[:-1], edges[1:], n, k, n_eff):
+                e = kk / nn if nn > 0 else 0
+                flag = "  <-- k>n!" if kk > nn * (1 + 1e-9) else ""
+                empty = "  [EMPTY]" if ne < 1 else ""
+                print(f"{lo_e:6.0f}-{hi_e:6.0f}  n={nn:10.3g}  k={kk:10.3g}  "
+                    f"n_eff={ne:8.2f}  eff={e:.3f}{flag}{empty}")
+
+        results[label] = {
+            "x": 0.5 * (edges[1:] + edges[:-1]),
+            "xerr": 0.5 * np.diff(edges),
+            "eff": eff,
+            "lo": lo,
+            "hi": hi,
+            "valid": valid,
+        }
+    return results
+
+
+for xmax, var, outname in PLOTS:
+
+    results = doPlots(xmax, var)
+    make_plot(xmax, results, outname)
+
+    plt.show()

@@ -7,7 +7,7 @@
     // "datadir": "/data/dust/user/vashisht/CMSSW_17_0_0_pre3/src/Run3_LLStaus/Analysis/muon0_2024C_files.txt",
     "store": "/pnfs/desy.de/cms/tier2/store/user/svashish/LLSTauProduction_RUN3/",
     "rng_seed_file": "$CONFDIR/seed.txt",
-    "compute_systematics": true,
+    "compute_systematics": false,
     // "lumimask": "$CONFDIR/Cert_314472-325175_13TeV_Legacy2018_Collisions18_JSON.txt",
     "luminosity": 109.82, // fb-1
     "crosssections": "$CONFDIR/../crossections.json",
@@ -231,9 +231,8 @@
     "histogram_format": "root",
 
     "cuts_to_histogram" : [
-            // "PV",
-            // "MET_trigger_pass",
             "atleast_two_loose_jets_final",
-            "two_tight_jets"
+            "atleast_one_pf_jet",
+            "met_trigger_pass"
         ]
 }
