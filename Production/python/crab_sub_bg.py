@@ -1,6 +1,6 @@
 import subprocess
 
-samples_file = "stau_exonano_samples.txt"
+samples_file = "background.txt"
 
 template = """
 import CRABClient
@@ -14,24 +14,24 @@ config.General.workArea = 'crab_projects'
 
 config.section_("JobType")
 config.JobType.pluginName = 'Analysis'
-config.JobType.psetName = '/data/dust/user/vashisht/CMSSW_17_0_0_pre3/src/Run3_LLStaus/Production/python/exoNanoMC_2024_priv.py'
-config.JobType.maxJobRuntimeMin = 10*60
-config.JobType.maxMemoryMB = 3000
-config.JobType.numCores = 4
+config.JobType.psetName = '/data/dust/user/vashisht/CMSSW_17_0_0_pre3/src/Run3_LLStaus/Production/python/priv_exonanoMC_bg_2024.py'
+config.JobType.maxJobRuntimeMin = 5*60
+config.JobType.maxMemoryMB = 4000
+config.JobType.numCores = 2
 
 config.section_("Data")
 config.Data.inputDataset = '{input_dataset}'
-config.Data.inputDBS = 'phys03'
+config.Data.inputDBS = 'global'
 
 config.Data.splitting = 'FileBased'
 config.Data.unitsPerJob = 1
+config.Data.totalUnits = 200
 
 config.Data.outLFNDirBase = '/store/user/svashish/LLSTauProduction_RUN3/{request_name}'
 config.Data.publication = True
 config.Data.outputDatasetTag = 'NANOAOD'
 
 config.section_("Site")
-config.Site.whitelist = ['T2_DE_DESY']
 config.Site.storageSite = 'T2_DE_DESY'
 """
 
@@ -42,7 +42,7 @@ with open(samples_file) as f:
         if not line or line.startswith("#"):
             continue
 
-        request_name, input_dataset = line.split("|", 1)
+        request_name, input_dataset = [x.strip() for x in line.split("|", 1)]
 
         cfg_name = f"crab_{request_name}.py"
 
