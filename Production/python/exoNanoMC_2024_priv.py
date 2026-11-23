@@ -82,7 +82,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
         dataTier = cms.untracked.string('NANOAODSIM'),
         filterName = cms.untracked.string('')
     ),
-    fileName = cms.untracked.string('file:SUS-Run3Summer2024-stau700_lsp1_ctau10m_ExoNanoAOD.root'),
+    fileName = cms.untracked.string('file:ExoNanoAOD.root'),
     outputCommands = process.NANOAODSIMEventContent.outputCommands
 )
 
@@ -90,7 +90,7 @@ process.NANOAODSIMoutput = cms.OutputModule("NanoAODOutputModule",
 
 # Other statements
 from Configuration.AlCa.GlobalTag import GlobalTag
-process.GlobalTag = GlobalTag(process.GlobalTag, '150X_mcRun3_2024_realistic_v2', '')
+process.GlobalTag = GlobalTag(process.GlobalTag, '150X_mcRun3_2024_realistic_v4', '')
 
 
 # Path and EndPath definitions

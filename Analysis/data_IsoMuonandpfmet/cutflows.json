@@ -1,0 +1,21 @@
+{
+    "Muon": {
+        "all": {
+            "BeforeCuts": 1008704.0,
+            "MET": 498329.0,
+            "Trigger": 239242.0,
+            "MET filters": 238673.0,
+            "PV": 238673.0,
+            "MET_trigger_pass": 685.0,
+            "single_muon_tag": 582.0,
+            "Lead_pass_trigger": 582.0,
+            "loose_muon_veto": 576.0,
+            "loose_electron_veto": 559.0,
+            "dy_gen_sfs": 559.0,
+            "atleast_two_loose_jets": 1.0,
+            "dphi_min_cut": 1.0,
+            "atleast_two_loose_jets_final": 1.0,
+            "two_tight_jets": 0.0
+        }
+    }
+}

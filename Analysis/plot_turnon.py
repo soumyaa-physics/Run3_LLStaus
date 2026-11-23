@@ -53,8 +53,9 @@ def get(path, datasets):
         h_var = h.variances(flow=False)
         h_edges = h.axis().edges()
 
+        # Data: unweighted counts. If no sumw2 is stored, use Poisson (var = N).
         if h_var is None:
-            raise ValueError(f"No sumw2 variances found for {hist_path}")
+            h_var = h_vals.copy()
 
         if vals is None:
             vals = h_vals.copy()
@@ -115,13 +116,14 @@ def make_plot(xmax, results, outname):
                 markersize=8,
                 markeredgewidth=2,
                 linestyle="none",
-                label=None if empty_labeled else "Empty bin (no MC events)",
+                label=None if empty_labeled else "Empty bin (no events)",
             )
             empty_labeled = True
 
     plt.axhline(1, linestyle="--", color="gray")
-    plt.axhline(0.85, linestyle="--", color="red", label="85% efficiency")
+    # plt.axhline(0.85, linestyle="--", color="red", label="85% efficiency")
     plt.axhline(0.90, linestyle="--", color="blue", label="90% efficiency")
+    plt.axhline(0.95, linestyle="--", color="green", label="95% efficiency")
 
     plt.xlabel("Minimum of MET and MHT [GeV]")
     plt.ylabel("Trigger efficiency")
